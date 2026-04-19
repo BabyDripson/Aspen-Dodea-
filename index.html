@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoDEA Aspen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap');
+        
+        :root {
+            --tw-color-primary: #4a7043;
+        }
+        
+        * {
+            font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+        }
+        
+        .browser-bar {
+            background: #1c2526;
+            border-bottom: 1px solid #333;
+        }
+        
+        .header-green {
+            background: linear-gradient(#4a7043, #3d5c38);
+        }
+        
+        .table-header {
+            background: #f0f0f0;
+        }
+        
+        .login-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat;
+        }
+        
+        .portal-content {
+            background: #f8f9fa;
+        }
+        
+        .grade-input {
+            width: 110px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 15px;
+        }
+        
+        .tab-active {
+            background: #4a7043 !important;
+            color: white !important;
+            border-radius: 4px 4px 0 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- LOGIN SCREEN (exact replica of third image) -->
+    <div id="login-screen" class="login-bg min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-2xl w-full">
+            <!-- Fake browser bar -->
+            <div class="browser-bar text-white text-sm px-4 py-2 rounded-t-lg flex items-center gap-3 text-xs">
+                <div class="flex gap-1">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="flex-1 bg-white/20 text-white rounded-full px-4 py-1 text-center text-xs flex items-center justify-between">
+                    <span class="flex-1 text-center">sis.myfollett.com</span>
+                    <span class="text-emerald-400">●</span>
+                    <span class="flex-1 text-center">Aspen: Log On</span>
+                </div>
+                <div>100% 🔋</div>
+            </div>
+
+            <div class="bg-white shadow-2xl rounded-b-lg overflow-hidden">
+                <!-- Header -->
+                <div class="bg-[#0a4a8c] text-white px-8 py-6 flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-[#0a4a8c] font-bold text-4xl border-4 border-[#0a4a8c]">DoDEA</div>
+                        <div>
+                            <div class="text-3xl font-bold tracking-wider">SIS</div>
+                            <div class="text-xs -mt-1">STUDENT INFORMATION SYSTEM</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 text-4xl font-bold">Follett Aspen™</div>
+                </div>
+
+                <div class="p-8">
+                    <div class="max-w-md mx-auto">
+                        <h1 class="text-2xl font-semibold text-center mb-8">DoDEA Aspen</h1>
+                        
+                        <!-- Family Portal Login -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium mb-1">Family Portal Login ID</label>
+                            <input id="family-id" type="text" placeholder="" 
+                                   class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-[#0a4a8c]">
+                            <a href="#" class="text-[#0a4a8c] text-sm mt-1 block hover:underline">Request an account</a>
+                            
+                            <label class="block text-sm font-medium mt-6 mb-1">Family Portal Password</label>
+                            <input id="family-pass" type="password" placeholder="" 
+                                   class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-[#0a4a8c]">
+                            
+                            <div class="flex gap-4 text-sm mt-2">
+                                <a href="#" class="text-[#0a4a8c] hover:underline">Trouble logging in?</a>
+                                <a href="#" class="text-[#0a4a8c] hover:underline">I forgot my password</a>
+                            </div>
+                            
+                            <button onclick="attemptLogin()" 
+                                    class="mt-8 w-full bg-gray-700 hover:bg-gray-800 text-white py-3 rounded flex items-center justify-center gap-2 text-sm font-medium">
+                                <span>Log On</span>
+                            </button>
+                        </div>
+
+                        <div class="border-t pt-6">
+                            <p class="text-sm font-medium mb-3">Log in with Another Provider</p>
+                            <div class="flex items-center gap-3 bg-gray-50 p-4 rounded border">
+                                <div>
+                                    <div class="text-sm">Select an Organization</div>
+                                    <div class="font-medium">DoDEA Aspen</div>
+                                </div>
+                                <button onclick="attemptLogin()" 
+                                        class="ml-auto bg-white border border-gray-300 hover:bg-gray-50 px-6 py-2 rounded text-sm">Sign in</button>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div class="text-sm">Select an Identity Provider</div>
+                                <div onclick="attemptLogin()" 
+                                     class="border border-gray-300 hover:bg-gray-50 px-4 py-3 rounded cursor-pointer flex items-center justify-between">
+                                    <span>Student Sign In</span>
+                                    <span class="text-xs bg-gray-200 px-2 py-0.5 rounded">▼</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer note -->
+                        <div class="mt-8 text-xs text-gray-500 bg-gray-100 p-4 rounded border">
+                            This is a non-public portal and is intended for authorized users only. Protecting the privacy and security of your personal information.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#0a4a8c] text-white text-xs text-center py-3">
+                    Copyright © 2026 Follett School Solutions, LLC. All rights reserved.<br>
+                    Follett School Solutions | Aspen | Terms of Use
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN PORTAL (hyper-realistic copy of first + second images) -->
+    <div id="portal-screen" class="hidden min-h-screen flex flex-col">
+        <!-- Top bar (exact replica) -->
+        <div class="browser-bar text-white text-sm px-6 py-2 flex items-center gap-4">
+            <div class="flex gap-1">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            </div>
+            <div class="flex-1 flex items-center gap-2 text-xs">
+                <span class="px-3 py-1 bg-white/20 rounded-full">odeasis.myfollett.com</span>
+                <span class="text-emerald-400 text-lg leading-none">●</span>
+                <span class="px-3 py-1 bg-white/20 rounded-full flex-1 text-center">Aspen: Classes</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <div>12:26 Sun Apr 19</div>
+                <div class="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs">100%</div>
+            </div>
+        </div>
+
+        <!-- Main header -->
+        <div class="bg-gray-800 text-white px-6 py-3 flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-4">
+                <div class="text-2xl font-bold">Kaiserslautern/Sembach 2025-2026</div>
+                <div class="text-sm">King-Nuako, Julian</div>
+            </div>
+            <div class="flex items-center gap-6 text-sm">
+                <div onclick="logout()" class="flex items-center gap-1 cursor-pointer hover:text-emerald-400">
+                    <span>Log Off</span>
+                    <span class="text-xl">⭍</span>
+                </div>
+                <div class="flex items-center gap-1 cursor-pointer">
+                    <span class="text-emerald-400">King-Nuako, Julian</span>
+                    <span class="text-2xl">▼</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Green navigation bar -->
+        <div class="header-green text-white px-6 py-2 flex items-center gap-1 text-sm font-medium">
+            <div onclick="switchTab(0)" id="tab-0" class="tab-active px-6 py-2 cursor-pointer">Pages</div>
+            <div onclick="switchTab(1)" id="tab-1" class="px-6 py-2 cursor-pointer">My Info</div>
+            <div onclick="switchTab(2)" id="tab-2" class="px-6 py-2 cursor-pointer">Academics</div>
+            <div onclick="switchTab(3)" id="tab-3" class="px-6 py-2 cursor-pointer">Calendar</div>
+        </div>
+
+        <!-- PAGE CONTENT AREA -->
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- LEFT SIDEBAR (changes per tab) -->
+            <div id="sidebar" class="w-56 bg-white border-r shadow-inner flex flex-col text-sm">
+                <!-- Dynamically filled by JS -->
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="flex-1 p-6 overflow-auto portal-content">
+                
+                <!-- Pages Tab Content (exact copy of second image) -->
+                <div id="content-0">
+                    <div class="mb-6">
+                        <div class="header-green text-white px-4 py-2 font-medium">Announcements</div>
+                        <div class="bg-white p-6 border shadow-sm">
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li class="text-base"><strong>Welcome to the DoDEA Student Portal!</strong><br>
+                                The Student Portal allows you to keep up with progress in school - including grades, assignments, attendance, and more. To view your grades and attendance, click the Academics top tab.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- To Do -->
+                        <div>
+                            <div class="header-green text-white px-4 py-2 font-medium flex justify-between">
+                                <span>To Do</span>
+                                <span class="text-xs flex items-center gap-1">✅ Overdue Online Assignments ✅ Tomorrow ✅ Today <span class="underline">Week View</span></span>
+                            </div>
+                            <div class="bg-white p-6 border shadow-sm text-sm">
+                                <div class="mb-6">
+                                    <div class="font-medium text-emerald-600">Overdue Online Assignments</div>
+                                    <div class="text-gray-500 italic mt-1">No assignments scheduled.</div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <div class="font-medium">Today: Sunday, April 19</div>
+                                    <div class="text-gray-500 italic mt-1">No assignments scheduled.</div>
+                                </div>
+                                
+                                <div>
+                                    <div class="font-medium">Tomorrow: Monday, April 20</div>
+                                    <table class="w-full mt-3 text-xs">
+                                        <tr class="border-b">
+                                            <td class="py-2 pr-4 text-emerald-700 font-medium">GlobStd9</td>
+                                            <td class="py-2">Mapping Tang &amp; Song Empires 7 Questions</td>
+                                            <td class="py-2 text-right">Class Assignments</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Published Reports + Recent Activity -->
+                        <div>
+                            <div class="header-green text-white px-4 py-2 font-medium">Published Reports</div>
+                            <div class="bg-white border shadow-sm mb-6">
+                                <table class="w-full text-xs">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="text-left px-4 py-3">Filename</th>
+                                            <th class="text-left px-4 py-3">DateUploaded</th>
+                                            <th class="text-left px-4 py-3">Creator</th>
+                                            <th class="text-left px-4 py-3">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-4 py-3 text-emerald-700">📄 DoDEA Secondary Report Card (All Terms) 3 KB</td>
+                                            <td class="px-4 py-3">4/10/2026 6:56 AM</td>
+                                            <td class="px-4 py-3">Moore, Cynthia</td>
+                                            <td class="px-4 py-3">Report card for King-Nuako, Julian [1 - 1 of 1]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="header-green text-white px-4 py-2 font-medium flex justify-between items-center">
+                                Recent Activity 
+                                <span class="text-xs bg-white text-black px-3 py-px rounded">Last 30 days</span>
+                            </div>
+                            <div class="bg-white border shadow-sm p-4 text-xs max-h-80 overflow-auto">
+                                <div class="flex gap-2 mb-3">
+                                    <input type="checkbox" checked class="mt-px"> 
+                                    <input type="checkbox" checked class="mt-px">
+                                    <span class="text-emerald-600">Attendance</span>
+                                    <span class="text-emerald-600">Grades</span>
+                                </div>
+                                <ul class="space-y-4 text-[13px]">
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Biology in the Living Environment)</span> <span class="font-medium">Grade: 38</span> <span class="text-gray-500">Assignment: Microscope Labeling Quiz</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W3</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W2</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W1</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (German III)</span> <span class="font-medium">Grade: 30</span> <span class="text-gray-500">Assignment: M3 K4B Fotoroman: Auf Wiedersehen, Berlin!</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 2.5</span> <span class="text-gray-500">Assignment: WUQ4#1</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Biology in the Living Environment)</span> <span class="font-medium">Grade: NTI</span> <span class="text-gray-500">Assignment: Chapter 16 Focused Notes</span></li>
+                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Pre AP ELA 2)</span> <span class="font-medium">Grade: 4.5</span> <span class="text-gray-500">Assignment: Hunger Games Ch. 13–14 Discussion Post</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academics Tab Content (exact copy of first image with random grades) -->
+                <div id="content-2" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-emerald-700 text-white text-xs font-medium px-4 h-8 rounded flex items-center">Classes</div>
+                            <div class="text-sm text-gray-600">0 of 8 selected <span class="text-orange-500">✏️</span></div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <button onclick="randomizeGrades()" 
+                                    class="bg-white border border-gray-400 text-gray-700 px-5 py-1 text-xs rounded flex items-center gap-1 hover:shadow">
+                                🎲 Randomize Grades
+                            </button>
+                            
+                            <button onclick="saveGrades()" 
+                                    class="bg-emerald-600 text-white px-6 py-1 text-xs rounded flex items-center gap-1 hover:bg-emerald-700">
+                                💾 MINI SAVE
+                            </button>
+                            
+                            <div class="flex items-center text-xs border rounded px-3 py-1">
+                                Current Year 
+                                <span class="ml-2 text-emerald-700">▼</span>
+                            </div>
+                            <div class="flex items-center text-xs border rounded px-3 py-1">
+                                Current Term 
+                                <span class="ml-2 text-emerald-700">▼</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="w-full text-sm border-collapse">
+                        <thead>
+                            <tr class="table-header text-xs">
+                                <th class="w-8"></th>
+                                <th class="text-left px-4 py-3 font-medium">Description</th>
+                                <th class="text-left px-4 py-3 font-medium">Term</th>
+                                <th class="text-left px-4 py-3 font-medium">Teacher</th>
+                                <th class="text-left px-4 py-3 font-medium">Primary Staff › Email1</th>
+                                <th class="text-left px-4 py-3 font-medium">Clssrm</th>
+                                <th class="text-left px-4 py-3 font-medium">Term Performance</th>
+                                <th class="text-center px-2 py-3 font-medium">Abs</th>
+                                <th class="text-center px-2 py-3 font-medium">Tdy</th>
+                                <th class="text-center px-2 py-3 font-medium">Dsm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classes-table" class="text-xs bg-white divide-y"></tbody>
+                    </table>
+                </div>
+
+                <!-- My Info & Calendar tabs (simple placeholders - realistic but empty) -->
+                <div id="content-1" class="hidden p-8 text-center text-gray-500">
+                    <div class="max-w-md mx-auto bg-white border p-8 rounded-2xl shadow">
+                        <p class="text-2xl mb-3">👤 My Info</p>
+                        <p class="text-sm">Student information, contact details, and emergency contacts would appear here in the real portal.</p>
+                        <p class="mt-8 text-xs text-gray-400">This tab is intentionally left minimal for this demo clone.</p>
+                    </div>
+                </div>
+                <div id="content-3" class="hidden p-8 text-center text-gray-500">
+                    <div class="max-w-md mx-auto bg-white border p-8 rounded-2xl shadow">
+                        <p class="text-2xl mb-3">📅 Calendar</p>
+                        <p class="text-sm">School events, assignment due dates, and your personal calendar would appear here.</p>
+                        <p class="mt-8 text-xs text-gray-400">Demo only – full calendar UI would be here in the real Aspen portal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script already loaded
+        function initTailwind() {
+            tailwind.config = { content: ["*"] }
+        }
+
+        // CLASS DATA (exact from your screenshots)
+        let classesData = [
+            {
+                id: 1,
+                description: "Foundations of Fitness",
+                term: "S2",
+                teacher: "Crawford, Stephanie",
+                email: "stephanie.crawford@dodea.edu",
+                classroom: "GYM",
+                performance: "",
+                abs: 6,
+                tdy: 0,
+                dsm: 0
+            },
+            {
+                id: 2,
+                description: "Air Force JROTC I",
+                term: "YR",
+                teacher: "Cruz, Donald; Conley, William",
+                email: "william.conley@dodea.edu",
+                classroom: "F117",
+                performance: "",
+                abs: 8,
+                tdy: 4,
+                dsm: 0
+            },
+            {
+                id: 3,
+                description: "Biology in the Living Environment",
+                term: "YR",
+                teacher: "Campbell, Katina; Depriest, Dennis",
+                email: "katina.campbell@dodea.edu",
+                classroom: "A202",
+                performance: "",
+                abs: 9,
+                tdy: 1,
+                dsm: 0
+            },
+            {
+                id: 4,
+                description: "Pre AP ELA 2",
+                term: "YR",
+                teacher: "Pangrazio, Kellie; Spitzer, Karen",
+                email: "Kellie.Pangrazio@dodea.edu",
+                classroom: "A208",
+                performance: "",
+                abs: 5,
+                tdy: 1,
+                dsm: 1
+            },
+            {
+                id: 5,
+                description: "German III",
+                term: "YR",
+                teacher: "Gerhart, Laura",
+                email: "laura.gerhart@dodea.edu",
+                classroom: "D108",
+                performance: "",
+                abs: 7,
+                tdy: 0,
+                dsm: 2
+            },
+            {
+                id: 6,
+                description: "Geometry",
+                term: "YR",
+                teacher: "von Eicken, Aryan; Spitzer, Karen",
+                email: "aryan.voneicken@dodea.edu",
+                classroom: "B207",
+                performance: "",
+                abs: 5,
+                tdy: 0,
+                dsm: 0
+            },
+            {
+                id: 7,
+                description: "Global Studies: Ancient - 1750 CE",
+                term: "YR",
+                teacher: "Bratcher, Denine",
+                email: "denine.bratcher@dodea.edu",
+                classroom: "A204",
+                performance: "",
+                abs: 8,
+                tdy: 0,
+                dsm: 1
+            },
+            {
+                id: 8,
+                description: "Seminar",
+                term: "YR",
+                teacher: "Gerhart, Laura",
+                email: "laura.gerhart@dodea.edu",
+                classroom: "D108",
+                performance: "",
+                abs: 5,
+                tdy: 0,
+                dsm: 0
+            }
+        ]
+
+        // Generate random realistic grade (A+/A/A-/B+/B etc with percentage)
+        function generateRandomGrade() {
+            const percent = (60 + Math.random() * 40).toFixed(2)
+            const num = parseFloat(percent)
+            let letter = ''
+            if (num >= 97) letter = 'A+'
+            else if (num >= 93) letter = 'A'
+            else if (num >= 90) letter = 'A-'
+            else if (num >= 87) letter = 'B+'
+            else if (num >= 83) letter = 'B'
+            else if (num >= 80) letter = 'B-'
+            else if (num >= 77) letter = 'C+'
+            else if (num >= 73) letter = 'C'
+            else if (num >= 70) letter = 'C-'
+            else if (num >= 67) letter = 'D+'
+            else if (num >= 63) letter = 'D'
+            else if (num >= 60) letter = 'D-'
+            else letter = 'F'
+            return `${percent} ${letter}`
+        }
+
+        // Render the classes table with editable grade field
+        function renderClassesTable() {
+            const tbody = document.getElementById('classes-table')
+            tbody.innerHTML = ''
+            
+            classesData.forEach((cls, index) => {
+                const row = document.createElement('tr')
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'
+                row.innerHTML = `
+                    <td class="px-3"><input type="checkbox" class="w-4 h-4"></td>
+                    <td class="px-4 py-4 font-medium text-blue-700">${cls.description}</td>
+                    <td class="px-4 py-4">${cls.term}</td>
+                    <td class="px-4 py-4">${cls.teacher}</td>
+                    <td class="px-4 py-4 text-blue-700 underline">${cls.email}</td>
+                    <td class="px-4 py-4">${cls.classroom}</td>
+                    <td class="px-4 py-4">
+                        <input type="text" 
+                               class="grade-input text-center font-medium" 
+                               value="${cls.performance || ''}" 
+                               onchange="classesData[${index}].performance = this.value">
+                    </td>
+                    <td class="text-center py-4">${cls.abs}</td>
+                    <td class="text-center py-4">${cls.tdy}</td>
+                    <td class="text-center py-4">${cls.dsm}</td>
+                `
+                tbody.appendChild(row)
+            })
+        }
+
+        // Randomize all grades
+        function randomizeGrades() {
+            classesData.forEach(cls => {
+                cls.performance = generateRandomGrade()
+            })
+            renderClassesTable()
+            // Auto-save after randomizing
+            localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
+        }
+
+        // Save grades to localStorage so they persist on reload
+        function saveGrades() {
+            localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
+            const btn = event.currentTarget
+            const original = btn.innerHTML
+            btn.innerHTML = '✅ SAVED!'
+            btn.style.backgroundColor = '#10b981'
+            setTimeout(() => {
+                btn.innerHTML = original
+                btn.style.backgroundColor = ''
+            }, 1200)
+        }
+
+        // Load saved grades or create new random ones
+        function loadSavedGrades() {
+            const saved = localStorage.getItem('dodea_clone_grades')
+            if (saved) {
+                classesData = JSON.parse(saved)
+            } else {
+                // First time = random grades
+                classesData.forEach(cls => {
+                    cls.performance = generateRandomGrade()
+                })
+                localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
+            }
+            renderClassesTable()
+        }
+
+        // Switch between the four main tabs
+        function switchTab(n) {
+            // Deactivate all tabs
+            document.querySelectorAll('.header-green > div').forEach(tab => tab.classList.remove('tab-active'))
+            // Activate clicked
+            document.getElementById(`tab-${n}`).classList.add('tab-active')
+            
+            // Hide all contents
+            document.getElementById('content-0').classList.add('hidden')
+            document.getElementById('content-1').classList.add('hidden')
+            document.getElementById('content-2').classList.add('hidden')
+            document.getElementById('content-3').classList.add('hidden')
+            
+            // Show the chosen one
+            document.getElementById(`content-${n}`).classList.remove('hidden')
+            
+            // Update sidebar
+            updateSidebar(n)
+            
+            // Update fake browser title
+            if (n === 2) document.querySelector('.browser-bar span:last-child').textContent = 'Aspen: Classes'
+            else if (n === 0) document.querySelector('.browser-bar span:last-child').textContent = 'Aspen: Pages'
+        }
+
+        function updateSidebar(tab) {
+            const sidebar = document.getElementById('sidebar')
+            if (tab === 0) { // Pages
+                sidebar.innerHTML = `
+                    <div class="p-4 border-b bg-emerald-50 flex items-center gap-2 cursor-pointer">
+                        <span class="text-2xl">🏠</span>
+                        <span class="font-medium">Home</span>
+                    </div>
+                    <div class="px-4 py-3 text-xs text-gray-400">PAGE DIRECTORY</div>
+                    <div class="px-6 py-3 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-sm">
+                        📋 Announcements
+                    </div>
+                `
+            } else if (tab === 2) { // Academics
+                sidebar.innerHTML = `
+                    <div class="px-4 py-4 text-xs font-medium bg-gray-100">Details</div>
+                    <div class="px-4 py-4 text-xs font-medium border-b">Assignments</div>
+                    <div class="px-4 py-4 text-xs font-medium border-b">Attendance</div>
+                    <div class="px-6 py-5 text-xs text-emerald-700">← Back to full Academics view</div>
+                `
+            } else {
+                sidebar.innerHTML = `<div class="p-10 text-center text-xs text-gray-400">No sidebar content for this tab in the real Aspen portal.</div>`
+            }
+        }
+
+        // Fake login - works with ANY account / password
+        function attemptLogin() {
+            // No matter what you type, it logs you in
+            document.getElementById('login-screen').classList.add('hidden')
+            document.getElementById('portal-screen').classList.remove('hidden')
+            
+            // Load the classes with random or saved grades
+            loadSavedGrades()
+            
+            // Default to Pages tab
+            switchTab(0)
+            
+            console.log('%c✅ Logged in successfully (any credentials work)', 'color:#10b981;font-weight:bold')
+        }
+
+        function logout() {
+            if (confirm('Log off Aspen?')) {
+                localStorage.removeItem('dodea_clone_grades') // optional - clears saved grades
+                location.reload()
+            }
+        }
+
+        // Initialize everything
+        window.onload = function () {
+            initTailwind()
+            // Portal is hidden until login
+            console.log('%c🚀 Hyper-realistic DoDEA Aspen clone ready! Login works with any username/password.', 'color:#0a4a8c;font-size:18px')
+        }
+    </script>
+</body>
+</html>
