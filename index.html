@@ -1,641 +1,1416 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoDEA Aspen</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap');
-        
-        :root {
-            --tw-color-primary: #4a7043;
-        }
-        
-        * {
-            font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-        }
-        
-        .browser-bar {
-            background: #1c2526;
-            border-bottom: 1px solid #333;
-        }
-        
-        .header-green {
-            background: linear-gradient(#4a7043, #3d5c38);
-        }
-        
-        .table-header {
-            background: #f0f0f0;
-        }
-        
-        .login-bg {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat;
-        }
-        
-        .portal-content {
-            background: #f8f9fa;
-        }
-        
-        .grade-input {
-            width: 110px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 15px;
-        }
-        
-        .tab-active {
-            background: #4a7043 !important;
-            color: white !important;
-            border-radius: 4px 4px 0 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DoDEA Aspen</title>
+<!-- GOOGLE SIGN-IN — Replace YOUR_CLIENT_ID below -->
+<!-- Setup: console.cloud.google.com → APIs & Services → Credentials → Create OAuth 2.0 Web Client ID -->
+<!-- Add your hosted domain to "Authorized JavaScript Origins" then paste the Client ID here -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;background:#eee}
+a{color:#1a6dcd;text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+input,select,button,textarea{font-family:Arial,Helvetica,sans-serif}
+
+/* ── LOADING ── */
+#loadingOverlay{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px}
+.spinner{width:38px;height:38px;border:4px solid #ddd;border-top-color:#5a7a25;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{font-size:14px;color:#666}
+
+/* ── LOGIN PAGE ── */
+#loginPage{display:none;min-height:100vh;flex-direction:column;position:relative;overflow:hidden}
+.login-bg{position:fixed;inset:-6px;background:url('https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1920&q=80') center/cover no-repeat;filter:blur(5px);transform:scale(1.06);z-index:0}
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:1}
+.login-wrap{position:relative;z-index:2;display:flex;flex-direction:column;min-height:100vh}
+.login-header{background:#1a4f82;padding:8px 16px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.dodea-seal{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#2a5aaa,#1a3a70);border:2px solid rgba(200,200,255,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;position:relative}
+.dodea-seal::before{content:'★';position:absolute;top:4px;font-size:8px;color:#ffd700}
+.dodea-seal-inner{text-align:center;line-height:1.2}
+.dodea-seal-inner .d1{color:#ffd700;font-size:6.5px;font-weight:bold;letter-spacing:.5px}
+.dodea-seal-inner .d2{color:#fff;font-size:7.5px;font-weight:900;letter-spacing:1px}
+.dodea-seal-inner .d3{color:#adf;font-size:5.5px;letter-spacing:.3px}
+.follett-brand{color:#fff;line-height:1}
+.follett-brand .fb-line1{font-size:26px;font-weight:300;letter-spacing:.5px}
+.follett-brand .fb-line1 strong{font-weight:700}
+.follett-brand .fb-line1 .tm{font-size:11px;vertical-align:super}
+.login-body{flex:1;display:flex;align-items:center;justify-content:center;padding:30px 16px}
+.login-card{background:#f0f0f0;border:1px solid #bbb;width:100%;max-width:440px}
+.login-card-title{text-align:center;font-size:15px;font-weight:bold;padding:13px;background:#f0f0f0;border-bottom:1px solid #ddd;color:#333}
+.login-card-body{padding:18px 20px}
+.lf{margin-bottom:13px}
+.lf label{display:block;font-weight:bold;font-size:13px;margin-bottom:3px}
+.lf input{width:100%;padding:6px 8px;border:2px solid #70aac4;outline:none;font-size:13px;background:#fff}
+.lf input:focus{border-color:#1a6dcd}
+.lf-links{display:flex;justify-content:space-between;margin-top:3px}
+.lf-links a{font-size:11.5px;color:#1a6dcd}
+.login-btn{background:#5c5c5c;color:#fff;border:none;padding:7px 14px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.login-btn:hover{background:#444}
+.login-divider{text-align:center;font-size:13.5px;font-weight:bold;color:#333;margin:15px 0 12px;border-top:1px solid #ccc;padding-top:15px}
+.provider-label{font-weight:bold;font-size:13px;margin-bottom:3px}
+.org-name{font-size:13px;margin-bottom:8px}
+.provider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.provider-select{padding:5px 8px;font-size:13px;border:1px solid #ccc;background:#fff;border-radius:2px}
+.provider-sign-btn{background:#fff;border:1px solid #888;padding:6px 18px;font-size:13px;cursor:pointer;border-radius:2px}
+.provider-sign-btn:hover{background:#f5f5f5}
+.google-btn{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #ddd;padding:7px 14px;font-size:13px;cursor:pointer;border-radius:2px;font-weight:500;color:#333}
+.google-btn:hover{background:#f8f8f8;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.google-svg{width:18px;height:18px;flex-shrink:0}
+.login-notice{background:#fff;border:1px solid #ccc;padding:8px 10px;margin-top:12px;font-size:11.5px;color:#333;line-height:1.5;max-height:72px;overflow:auto}
+.login-footer{background:rgba(0,0,0,.58);color:#bbb;padding:6px 16px;display:flex;justify-content:space-between;font-size:11px;flex-shrink:0}
+.login-footer a{color:#adf}
+
+/* ── PORTAL ── */
+#portalPage{display:none;flex-direction:column;min-height:100vh;background:#eee}
+.portal-header{background:#2b2b2b;padding:5px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+.ph-left .school-name{color:#fff;font-size:14px;font-weight:400}
+.ph-left .student-italic{color:#ccc;font-size:12px;font-style:italic;margin-top:1px}
+.ph-right{display:flex;align-items:center;gap:12px}
+.ph-student{color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:3px;padding:2px 4px}
+.ph-student:hover{text-decoration:underline}
+.ph-logoff{color:#bbb;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:3px}
+.ph-logoff:hover{color:#fff}
+.portal-nav{background:#5a7a25;display:flex;flex-shrink:0}
+.nav-tab{color:#fff;padding:9px 14px;font-size:13px;cursor:pointer;border:none;background:none;display:block;border-bottom:2px solid transparent;white-space:nowrap}
+.nav-tab:hover{background:rgba(255,255,255,.14);text-decoration:none;color:#fff}
+.nav-tab.active{background:rgba(255,255,255,.2);border-bottom:2px solid #fff}
+.portal-content{flex:1}
+
+/* ── PAGES TAB ── */
+#tabPages{display:none;background:#eee}
+.pages-wrap{display:flex;align-items:flex-start;min-height:calc(100vh - 82px)}
+.pages-sidebar{width:90px;background:#fff;border-right:1px solid #ddd;flex-shrink:0;min-height:100%}
+.pages-sb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-bottom:1px solid #eee;cursor:pointer;text-align:center;font-size:12px;color:#1a6dcd}
+.pages-sb-item:hover{background:#f5f5f5;text-decoration:underline}
+.pages-sb-icon{font-size:20px;margin-bottom:3px}
+.pages-main{flex:1;padding:6px}
+.pg-announce{background:#fff;border:1px solid #ddd;margin-bottom:6px}
+.pg-header{background:#5a7a25;color:#fff;padding:5px 9px;font-size:13px;font-weight:bold}
+.pg-body{padding:9px 10px;font-size:13px;line-height:1.55}
+.pg-body b{font-weight:bold}
+.pages-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(max-width:680px){.pages-grid{grid-template-columns:1fr}}
+.pg-section{background:#fff;border:1px solid #ddd}
+.todo-filters{margin-bottom:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px}
+.todo-cb{display:flex;align-items:center;gap:3px;cursor:pointer}
+.todo-cb input{width:13px;height:13px}
+.week-view-link{color:#1a6dcd;font-size:12px;cursor:pointer;margin-left:auto}
+.todo-subhdr{font-weight:bold;margin:7px 0 4px;font-size:13px}
+.todo-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.todo-tbl th{padding:3px 6px;background:#e5e5e5;text-align:left;border:1px solid #ccc;font-size:12px}
+.todo-tbl td{padding:3px 6px;border:1px solid #ddd;font-size:12px}
+.no-asgn{color:#666;font-size:12px;padding:2px 0}
+.rep-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rep-tbl th{padding:4px 6px;text-align:left;font-size:12px;font-weight:bold;border-bottom:1px solid #ccc}
+.rep-tbl td{padding:3px 6px;font-size:12px;vertical-align:top}
+.rep-link{color:#1a6dcd;cursor:pointer}
+.rep-link:hover{text-decoration:underline}
+.pdf-ico{color:#c00;font-size:14px;margin-right:3px;vertical-align:middle}
+.act-list{list-style:none;font-size:12px;line-height:1.5}
+.act-list li{padding:2px 0;border-bottom:1px solid #f0f0f0}
+.act-list li:last-child{border-bottom:none}
+.act-date{font-weight:bold}
+.act-cat{color:#1a6dcd}
+.act-grade-label{font-weight:bold}
+
+/* ── ACADEMICS TAB ── */
+#tabAcademics{display:none;background:#fff}
+.acad-layout{display:flex;min-height:calc(100vh - 82px)}
+.acad-sidebar{width:110px;flex-shrink:0;border-right:1px solid #ddd;background:#fff}
+.acad-sb-item{display:block;padding:9px 10px;font-size:13px;color:#1a6dcd;border-bottom:1px solid #eee;cursor:pointer;white-space:nowrap}
+.acad-sb-item:hover{background:#f5f5f5;text-decoration:underline}
+.acad-sb-item.active{color:#333;background:#f0f0f0}
+.acad-sb-item.active:hover{text-decoration:none}
+.acad-main{flex:1;padding:8px;overflow-x:auto;min-width:0}
+
+/* Classes view */
+.cls-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-wrap:wrap;gap:6px}
+.cls-title{font-size:16px;font-weight:bold}
+.grade-btns{display:flex;gap:5px}
+.btn-rand{padding:3px 9px;font-size:11px;border:1px solid #999;background:#f5f5f5;cursor:pointer;border-radius:2px}
+.btn-rand:hover{background:#e5e5e5}
+.btn-sv{padding:3px 9px;font-size:11px;border:1px solid #4a6a1a;background:#5a7a25;color:#fff;cursor:pointer;border-radius:2px}
+.btn-sv:hover{background:#4a6a1a}
+.toolbar{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.tb-btn{padding:4px 10px;font-size:12px;background:#5a7a25;color:#fff;border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;gap:4px}
+.tb-btn:hover{background:#4a6a1a}
+.tb-search{padding:3px 6px;font-size:12px;border:1px solid #ccc;background:#fff;width:130px}
+.tb-ico{width:26px;height:26px;border:1px solid #ccc;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tb-ico:hover{background:#f0f0f0}
+.tb-select{padding:3px 6px;font-size:12px;border:1px solid #ccc;background:#fff}
+.sel-info{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.eraser{cursor:pointer;color:#e74c3c;font-size:13px}
+.cls-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.cls-tbl th{background:#3d3d3d;color:#fff;padding:6px 8px;text-align:left;font-size:12px;white-space:nowrap;font-weight:bold;border-right:1px solid #555}
+.cls-tbl th:last-child{border-right:none}
+.cls-tbl td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:middle;white-space:nowrap}
+.cls-tbl tr:hover td{background:#f5f8ff}
+.cls-link{color:#1a6dcd;cursor:pointer}
+.cls-link:hover{text-decoration:underline}
+
+/* Assignments view */
+.asgn-back{color:#1a6dcd;cursor:pointer;font-size:13px;margin-bottom:8px;display:inline-block}
+.asgn-back:hover{text-decoration:underline}
+.asgn-title{font-size:16px;font-weight:bold;margin-bottom:10px}
+.asgn-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
+.asgn-tbl th{background:#3d3d3d;color:#fff;padding:6px 8px;text-align:left;font-size:12px;font-weight:bold;border-right:1px solid #555}
+.asgn-tbl td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:middle}
+.asgn-tbl tr:hover td{background:#f5f8ff}
+.asgn-grade-col{text-align:right}
+
+/* Attendance view */
+.att-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:400px}
+.att-tbl th{background:#3d3d3d;color:#fff;padding:6px 8px;text-align:left;font-size:12px;font-weight:bold;border-right:1px solid #555}
+.att-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
+
+/* ── MY INFO TAB ── */
+#tabMyInfo{display:none;padding:14px}
+.mi-title{font-size:16px;font-weight:bold;margin-bottom:12px}
+.info-tbl{border-collapse:collapse;font-size:13px;width:100%;max-width:500px}
+.info-tbl th{padding:7px 10px;background:#f0f0f0;text-align:left;font-weight:bold;border:1px solid #ddd}
+.info-tbl td{padding:7px 10px;border:1px solid #ddd}
+
+/* ── CALENDAR TAB ── */
+#tabCalendar{display:none;padding:14px}
+.cal-title{font-size:16px;font-weight:bold;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.cal-nav{padding:3px 10px;font-size:12px;border:1px solid #ccc;background:#fff;cursor:pointer;border-radius:2px}
+.cal-nav:hover{background:#f0f0f0}
+.cal-tbl{border-collapse:collapse;width:100%;max-width:580px}
+.cal-tbl th{background:#5a7a25;color:#fff;padding:7px;text-align:center;border:1px solid #4a6a1a;font-size:13px}
+.cal-tbl td{padding:5px 8px;border:1px solid #ddd;text-align:right;vertical-align:top;min-height:48px;font-size:13px;width:14.28%}
+.cal-tbl td.today-cell{background:#e8f4e8;font-weight:bold;color:#2a6010}
+.cal-tbl td.other-mo{color:#ccc}
+
+/* ── REPORT CARD MODAL ── */
+#rcModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:800;overflow-y:auto}
+#rcModal.open{display:block}
+.rc-scroller{display:flex;align-items:flex-start;justify-content:center;padding:20px;min-height:100%}
+.rc-outer{background:#fff;max-width:820px;width:100%;position:relative;padding:22px;box-shadow:0 4px 24px rgba(0,0,0,.45)}
+.rc-close{position:absolute;top:8px;right:12px;font-size:22px;cursor:pointer;border:none;background:none;color:#444;line-height:1;padding:2px 6px}
+.rc-close:hover{color:#000;background:#f0f0f0}
+.rc-doc{font-family:Arial,Helvetica,sans-serif;color:#000}
+.rc-topbar{display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:5px}
+.rc-title{text-align:center;font-size:15px;font-weight:bold;margin:7px 0 10px}
+.rc-info-outer{display:flex;gap:0;margin-bottom:10px}
+.rc-info-left{flex:1}
+.rc-info-right{width:180px;font-size:12px;border-left:0}
+.rc-info-row{display:grid;grid-template-columns:1fr 60px 80px;gap:0;margin-bottom:4px;font-size:12px}
+.rc-lbl{font-weight:bold;display:block;font-size:12px}
+.rc-val{display:block;font-size:12px}
+.rc-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.rc-tbl th{border:1px solid #999;padding:3px 4px;background:#f0f0f0;text-align:center;font-weight:bold;font-size:10.5px}
+.rc-tbl td{border:1px solid #ccc;padding:2px 4px;vertical-align:top;font-size:11px}
+.rc-cname{font-weight:bold;font-size:11px}
+.rc-code{font-size:10px;color:#444}
+.rc-tname{font-size:10.5px;color:#444}
+.rc-qlbl{font-size:10px;color:#555;white-space:nowrap}
+.rc-foot{display:flex;gap:14px;margin-top:18px;font-size:11px}
+.rc-foot-addr{border:1px solid #000;padding:6px 8px;font-size:11px;line-height:1.6;flex-shrink:0}
+.rc-foot-prin{padding:6px 8px;font-size:11px;line-height:1.6}
+.rc-foot-sig{border:1px solid #000;flex:1;min-height:60px}
+
+/* ── SETTINGS MODAL ── */
+#settingsModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:900;overflow-y:auto}
+#settingsModal.open{display:block}
+.set-scroller{display:flex;align-items:flex-start;justify-content:center;padding:20px;min-height:100%}
+.set-box{background:#fff;max-width:760px;width:100%;position:relative;padding:22px;border-radius:3px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.set-close{position:absolute;top:10px;right:14px;font-size:22px;cursor:pointer;border:none;background:none;color:#444;line-height:1}
+.set-close:hover{color:#000}
+.set-title{font-size:18px;font-weight:bold;margin-bottom:16px}
+.set-sec-lbl{font-size:13px;font-weight:bold;color:#5a7a25;border-bottom:1px solid #ddd;padding-bottom:4px;margin:14px 0 10px}
+.sf{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.sf label{font-size:13px;font-weight:bold;width:160px;flex-shrink:0}
+.sf input,.sf select{flex:1;padding:5px 8px;border:1px solid #ccc;font-size:13px}
+.cls-edit{border:1px solid #e0e0e0;padding:8px;margin-bottom:7px;background:#fafafa;border-radius:2px}
+.cls-edit-hdr{font-weight:bold;font-size:11px;color:#5a7a25;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.cls-edit-fields{display:grid;grid-template-columns:2fr 2fr 70px 55px;gap:5px}
+.cls-edit-fields input{padding:4px 6px;border:1px solid #ccc;font-size:12px;width:100%}
+.cls-edit-fields input::placeholder{color:#aaa;font-size:11px}
+.add-cls-btn{padding:5px 12px;background:#5a7a25;color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:12px;margin-bottom:10px}
+.add-cls-btn:hover{background:#4a6a1a}
+.del-cls-btn{padding:2px 7px;background:#c0392b;color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:11px}
+.del-cls-btn:hover{background:#a93226}
+.set-save-btn{padding:9px 22px;background:#5a7a25;color:#fff;border:none;font-size:14px;cursor:pointer;border-radius:2px;margin-top:10px}
+.set-save-btn:hover{background:#4a6a1a}
+.saved-msg{color:green;font-size:13px;margin-left:10px;display:inline-block;opacity:0;transition:opacity .3s}
+.saved-msg.show{opacity:1}
+
+/* Print button */
+.rc-print-btn{padding:5px 14px;background:#5a7a25;color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:12px;margin-bottom:12px}
+.rc-print-btn:hover{background:#4a6a1a}
+@media print{#rcModal{position:static;background:none}#loadingOverlay,#loginPage,#portalPage,#settingsModal,.rc-close,.rc-print-btn{display:none!important}#rcModal.open{display:block}.rc-outer{box-shadow:none;padding:0}}
+</style>
 </head>
-<body class="bg-gray-100">
-    <!-- LOGIN SCREEN (exact replica of third image) -->
-    <div id="login-screen" class="login-bg min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-2xl w-full">
-            <!-- Fake browser bar -->
-            <div class="browser-bar text-white text-sm px-4 py-2 rounded-t-lg flex items-center gap-3 text-xs">
-                <div class="flex gap-1">
-                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-                <div class="flex-1 bg-white/20 text-white rounded-full px-4 py-1 text-center text-xs flex items-center justify-between">
-                    <span class="flex-1 text-center">sis.myfollett.com</span>
-                    <span class="text-emerald-400">●</span>
-                    <span class="flex-1 text-center">Aspen: Log On</span>
-                </div>
-                <div>100% 🔋</div>
-            </div>
+<body>
 
-            <div class="bg-white shadow-2xl rounded-b-lg overflow-hidden">
-                <!-- Header -->
-                <div class="bg-[#0a4a8c] text-white px-8 py-6 flex items-center gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-[#0a4a8c] font-bold text-4xl border-4 border-[#0a4a8c]">DoDEA</div>
-                        <div>
-                            <div class="text-3xl font-bold tracking-wider">SIS</div>
-                            <div class="text-xs -mt-1">STUDENT INFORMATION SYSTEM</div>
-                        </div>
-                    </div>
-                    <div class="flex-1 text-4xl font-bold">Follett Aspen™</div>
-                </div>
+<!-- ═══════════════════ LOADING OVERLAY ═══════════════════ -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-msg" id="loadingMsg">Loading…</div>
+</div>
 
-                <div class="p-8">
-                    <div class="max-w-md mx-auto">
-                        <h1 class="text-2xl font-semibold text-center mb-8">DoDEA Aspen</h1>
-                        
-                        <!-- Family Portal Login -->
-                        <div class="mb-8">
-                            <label class="block text-sm font-medium mb-1">Family Portal Login ID</label>
-                            <input id="family-id" type="text" placeholder="" 
-                                   class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-[#0a4a8c]">
-                            <a href="#" class="text-[#0a4a8c] text-sm mt-1 block hover:underline">Request an account</a>
-                            
-                            <label class="block text-sm font-medium mt-6 mb-1">Family Portal Password</label>
-                            <input id="family-pass" type="password" placeholder="" 
-                                   class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-[#0a4a8c]">
-                            
-                            <div class="flex gap-4 text-sm mt-2">
-                                <a href="#" class="text-[#0a4a8c] hover:underline">Trouble logging in?</a>
-                                <a href="#" class="text-[#0a4a8c] hover:underline">I forgot my password</a>
-                            </div>
-                            
-                            <button onclick="attemptLogin()" 
-                                    class="mt-8 w-full bg-gray-700 hover:bg-gray-800 text-white py-3 rounded flex items-center justify-center gap-2 text-sm font-medium">
-                                <span>Log On</span>
-                            </button>
-                        </div>
-
-                        <div class="border-t pt-6">
-                            <p class="text-sm font-medium mb-3">Log in with Another Provider</p>
-                            <div class="flex items-center gap-3 bg-gray-50 p-4 rounded border">
-                                <div>
-                                    <div class="text-sm">Select an Organization</div>
-                                    <div class="font-medium">DoDEA Aspen</div>
-                                </div>
-                                <button onclick="attemptLogin()" 
-                                        class="ml-auto bg-white border border-gray-300 hover:bg-gray-50 px-6 py-2 rounded text-sm">Sign in</button>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <div class="text-sm">Select an Identity Provider</div>
-                                <div onclick="attemptLogin()" 
-                                     class="border border-gray-300 hover:bg-gray-50 px-4 py-3 rounded cursor-pointer flex items-center justify-between">
-                                    <span>Student Sign In</span>
-                                    <span class="text-xs bg-gray-200 px-2 py-0.5 rounded">▼</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer note -->
-                        <div class="mt-8 text-xs text-gray-500 bg-gray-100 p-4 rounded border">
-                            This is a non-public portal and is intended for authorized users only. Protecting the privacy and security of your personal information.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-[#0a4a8c] text-white text-xs text-center py-3">
-                    Copyright © 2026 Follett School Solutions, LLC. All rights reserved.<br>
-                    Follett School Solutions | Aspen | Terms of Use
-                </div>
-            </div>
+<!-- ═══════════════════ LOGIN PAGE ═══════════════════ -->
+<div id="loginPage" style="display:none">
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+  <div class="login-wrap">
+    <div class="login-header">
+      <div class="dodea-seal">
+        <div class="dodea-seal-inner">
+          <span class="d1">DoDEA</span>
+          <span class="d2">SIS</span>
+          <span class="d3">STUDENT</span>
+          <span class="d3">INFO SYS</span>
         </div>
+      </div>
+      <div class="follett-brand">
+        <div class="fb-line1"><strong>Follett</strong> Aspen<span class="tm">™</span></div>
+      </div>
     </div>
 
-    <!-- MAIN PORTAL (hyper-realistic copy of first + second images) -->
-    <div id="portal-screen" class="hidden min-h-screen flex flex-col">
-        <!-- Top bar (exact replica) -->
-        <div class="browser-bar text-white text-sm px-6 py-2 flex items-center gap-4">
-            <div class="flex gap-1">
-                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+    <div class="login-body">
+      <div class="login-card">
+        <div class="login-card-title">DoDEA Aspen</div>
+        <div class="login-card-body">
+          <form onsubmit="handleLogin(event)">
+            <div class="lf">
+              <label>Family Portal Login ID</label>
+              <input type="text" id="loginUser" autocomplete="username">
+              <div class="lf-links">
+                <a onclick="alert('Please contact your school administrator.')">Request an account</a>
+              </div>
             </div>
-            <div class="flex-1 flex items-center gap-2 text-xs">
-                <span class="px-3 py-1 bg-white/20 rounded-full">odeasis.myfollett.com</span>
-                <span class="text-emerald-400 text-lg leading-none">●</span>
-                <span class="px-3 py-1 bg-white/20 rounded-full flex-1 text-center">Aspen: Classes</span>
+            <div class="lf">
+              <label>Family Portal Password</label>
+              <input type="password" id="loginPass" autocomplete="current-password">
+              <div class="lf-links">
+                <a onclick="alert('Please contact your school administrator.')">Trouble logging in?</a>
+                <a onclick="alert('Please contact your school administrator.')">I forgot my password</a>
+              </div>
             </div>
-            <div class="flex items-center gap-2 text-xs">
-                <div>12:26 Sun Apr 19</div>
-                <div class="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center text-xs">100%</div>
-            </div>
+            <button type="submit" class="login-btn">&#8658; Log On</button>
+          </form>
+
+          <div class="login-divider">Log in with Another Provider</div>
+
+          <div class="provider-label">Select an Organization</div>
+          <div class="org-name">DoDEA Aspen</div>
+          <div class="provider-row">
+            <select class="provider-select" id="providerSelect">
+              <option value="student">Student Sign In</option>
+              <option value="parent">Parent Sign In</option>
+              <option value="staff">Staff Sign In</option>
+            </select>
+            <button type="button" class="provider-sign-btn" onclick="handleProviderSignIn()">Sign in</button>
+          </div>
+
+          <!-- Google Sign-In Button -->
+          <button type="button" class="google-btn" onclick="handleGoogleSignIn()">
+            <svg class="google-svg" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            Sign in with Google
+          </button>
+
+          <div class="login-notice">This is a non-public portal and is intended for authorized users only. Protecting the privacy and security of your personal information is our priority. Unauthorized access or use of this system is prohibited.</div>
         </div>
-
-        <!-- Main header -->
-        <div class="bg-gray-800 text-white px-6 py-3 flex items-center justify-between shadow-md">
-            <div class="flex items-center gap-4">
-                <div class="text-2xl font-bold">Kaiserslautern/Sembach 2025-2026</div>
-                <div class="text-sm">King-Nuako, Julian</div>
-            </div>
-            <div class="flex items-center gap-6 text-sm">
-                <div onclick="logout()" class="flex items-center gap-1 cursor-pointer hover:text-emerald-400">
-                    <span>Log Off</span>
-                    <span class="text-xl">⭍</span>
-                </div>
-                <div class="flex items-center gap-1 cursor-pointer">
-                    <span class="text-emerald-400">King-Nuako, Julian</span>
-                    <span class="text-2xl">▼</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Green navigation bar -->
-        <div class="header-green text-white px-6 py-2 flex items-center gap-1 text-sm font-medium">
-            <div onclick="switchTab(0)" id="tab-0" class="tab-active px-6 py-2 cursor-pointer">Pages</div>
-            <div onclick="switchTab(1)" id="tab-1" class="px-6 py-2 cursor-pointer">My Info</div>
-            <div onclick="switchTab(2)" id="tab-2" class="px-6 py-2 cursor-pointer">Academics</div>
-            <div onclick="switchTab(3)" id="tab-3" class="px-6 py-2 cursor-pointer">Calendar</div>
-        </div>
-
-        <!-- PAGE CONTENT AREA -->
-        <div class="flex flex-1 overflow-hidden">
-            
-            <!-- LEFT SIDEBAR (changes per tab) -->
-            <div id="sidebar" class="w-56 bg-white border-r shadow-inner flex flex-col text-sm">
-                <!-- Dynamically filled by JS -->
-            </div>
-
-            <!-- MAIN CONTENT -->
-            <div class="flex-1 p-6 overflow-auto portal-content">
-                
-                <!-- Pages Tab Content (exact copy of second image) -->
-                <div id="content-0">
-                    <div class="mb-6">
-                        <div class="header-green text-white px-4 py-2 font-medium">Announcements</div>
-                        <div class="bg-white p-6 border shadow-sm">
-                            <ul class="list-disc pl-6 space-y-2">
-                                <li class="text-base"><strong>Welcome to the DoDEA Student Portal!</strong><br>
-                                The Student Portal allows you to keep up with progress in school - including grades, assignments, attendance, and more. To view your grades and attendance, click the Academics top tab.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6">
-                        <!-- To Do -->
-                        <div>
-                            <div class="header-green text-white px-4 py-2 font-medium flex justify-between">
-                                <span>To Do</span>
-                                <span class="text-xs flex items-center gap-1">✅ Overdue Online Assignments ✅ Tomorrow ✅ Today <span class="underline">Week View</span></span>
-                            </div>
-                            <div class="bg-white p-6 border shadow-sm text-sm">
-                                <div class="mb-6">
-                                    <div class="font-medium text-emerald-600">Overdue Online Assignments</div>
-                                    <div class="text-gray-500 italic mt-1">No assignments scheduled.</div>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <div class="font-medium">Today: Sunday, April 19</div>
-                                    <div class="text-gray-500 italic mt-1">No assignments scheduled.</div>
-                                </div>
-                                
-                                <div>
-                                    <div class="font-medium">Tomorrow: Monday, April 20</div>
-                                    <table class="w-full mt-3 text-xs">
-                                        <tr class="border-b">
-                                            <td class="py-2 pr-4 text-emerald-700 font-medium">GlobStd9</td>
-                                            <td class="py-2">Mapping Tang &amp; Song Empires 7 Questions</td>
-                                            <td class="py-2 text-right">Class Assignments</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Published Reports + Recent Activity -->
-                        <div>
-                            <div class="header-green text-white px-4 py-2 font-medium">Published Reports</div>
-                            <div class="bg-white border shadow-sm mb-6">
-                                <table class="w-full text-xs">
-                                    <thead>
-                                        <tr class="bg-gray-100">
-                                            <th class="text-left px-4 py-3">Filename</th>
-                                            <th class="text-left px-4 py-3">DateUploaded</th>
-                                            <th class="text-left px-4 py-3">Creator</th>
-                                            <th class="text-left px-4 py-3">Description</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="px-4 py-3 text-emerald-700">📄 DoDEA Secondary Report Card (All Terms) 3 KB</td>
-                                            <td class="px-4 py-3">4/10/2026 6:56 AM</td>
-                                            <td class="px-4 py-3">Moore, Cynthia</td>
-                                            <td class="px-4 py-3">Report card for King-Nuako, Julian [1 - 1 of 1]</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="header-green text-white px-4 py-2 font-medium flex justify-between items-center">
-                                Recent Activity 
-                                <span class="text-xs bg-white text-black px-3 py-px rounded">Last 30 days</span>
-                            </div>
-                            <div class="bg-white border shadow-sm p-4 text-xs max-h-80 overflow-auto">
-                                <div class="flex gap-2 mb-3">
-                                    <input type="checkbox" checked class="mt-px"> 
-                                    <input type="checkbox" checked class="mt-px">
-                                    <span class="text-emerald-600">Attendance</span>
-                                    <span class="text-emerald-600">Grades</span>
-                                </div>
-                                <ul class="space-y-4 text-[13px]">
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Biology in the Living Environment)</span> <span class="font-medium">Grade: 38</span> <span class="text-gray-500">Assignment: Microscope Labeling Quiz</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W3</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W2</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 100</span> <span class="text-gray-500">Assignment: M4T2W1</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/17/2026 - Assignment Grade (German III)</span> <span class="font-medium">Grade: 30</span> <span class="text-gray-500">Assignment: M3 K4B Fotoroman: Auf Wiedersehen, Berlin!</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Geometry)</span> <span class="font-medium">Grade: 2.5</span> <span class="text-gray-500">Assignment: WUQ4#1</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Biology in the Living Environment)</span> <span class="font-medium">Grade: NTI</span> <span class="text-gray-500">Assignment: Chapter 16 Focused Notes</span></li>
-                                    <li class="flex justify-between"><span class="text-emerald-700">04/16/2026 - Assignment Grade (Pre AP ELA 2)</span> <span class="font-medium">Grade: 4.5</span> <span class="text-gray-500">Assignment: Hunger Games Ch. 13–14 Discussion Post</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Academics Tab Content (exact copy of first image with random grades) -->
-                <div id="content-2" class="hidden">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="bg-emerald-700 text-white text-xs font-medium px-4 h-8 rounded flex items-center">Classes</div>
-                            <div class="text-sm text-gray-600">0 of 8 selected <span class="text-orange-500">✏️</span></div>
-                        </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <button onclick="randomizeGrades()" 
-                                    class="bg-white border border-gray-400 text-gray-700 px-5 py-1 text-xs rounded flex items-center gap-1 hover:shadow">
-                                🎲 Randomize Grades
-                            </button>
-                            
-                            <button onclick="saveGrades()" 
-                                    class="bg-emerald-600 text-white px-6 py-1 text-xs rounded flex items-center gap-1 hover:bg-emerald-700">
-                                💾 MINI SAVE
-                            </button>
-                            
-                            <div class="flex items-center text-xs border rounded px-3 py-1">
-                                Current Year 
-                                <span class="ml-2 text-emerald-700">▼</span>
-                            </div>
-                            <div class="flex items-center text-xs border rounded px-3 py-1">
-                                Current Term 
-                                <span class="ml-2 text-emerald-700">▼</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <table class="w-full text-sm border-collapse">
-                        <thead>
-                            <tr class="table-header text-xs">
-                                <th class="w-8"></th>
-                                <th class="text-left px-4 py-3 font-medium">Description</th>
-                                <th class="text-left px-4 py-3 font-medium">Term</th>
-                                <th class="text-left px-4 py-3 font-medium">Teacher</th>
-                                <th class="text-left px-4 py-3 font-medium">Primary Staff › Email1</th>
-                                <th class="text-left px-4 py-3 font-medium">Clssrm</th>
-                                <th class="text-left px-4 py-3 font-medium">Term Performance</th>
-                                <th class="text-center px-2 py-3 font-medium">Abs</th>
-                                <th class="text-center px-2 py-3 font-medium">Tdy</th>
-                                <th class="text-center px-2 py-3 font-medium">Dsm</th>
-                            </tr>
-                        </thead>
-                        <tbody id="classes-table" class="text-xs bg-white divide-y"></tbody>
-                    </table>
-                </div>
-
-                <!-- My Info & Calendar tabs (simple placeholders - realistic but empty) -->
-                <div id="content-1" class="hidden p-8 text-center text-gray-500">
-                    <div class="max-w-md mx-auto bg-white border p-8 rounded-2xl shadow">
-                        <p class="text-2xl mb-3">👤 My Info</p>
-                        <p class="text-sm">Student information, contact details, and emergency contacts would appear here in the real portal.</p>
-                        <p class="mt-8 text-xs text-gray-400">This tab is intentionally left minimal for this demo clone.</p>
-                    </div>
-                </div>
-                <div id="content-3" class="hidden p-8 text-center text-gray-500">
-                    <div class="max-w-md mx-auto bg-white border p-8 rounded-2xl shadow">
-                        <p class="text-2xl mb-3">📅 Calendar</p>
-                        <p class="text-sm">School events, assignment due dates, and your personal calendar would appear here.</p>
-                        <p class="mt-8 text-xs text-gray-400">Demo only – full calendar UI would be here in the real Aspen portal.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <script>
-        // Tailwind script already loaded
-        function initTailwind() {
-            tailwind.config = { content: ["*"] }
-        }
+    <div class="login-footer">
+      <span>Copyright &copy; 2026 Follett School Solutions, LLC. All rights reserved.</span>
+      <span><a href="#">Follett School Solutions</a> | <a href="#">Aspen</a> | <a href="#">Terms of Use</a></span>
+    </div>
+  </div>
+</div>
 
-        // CLASS DATA (exact from your screenshots)
-        let classesData = [
-            {
-                id: 1,
-                description: "Foundations of Fitness",
-                term: "S2",
-                teacher: "Crawford, Stephanie",
-                email: "stephanie.crawford@dodea.edu",
-                classroom: "GYM",
-                performance: "",
-                abs: 6,
-                tdy: 0,
-                dsm: 0
-            },
-            {
-                id: 2,
-                description: "Air Force JROTC I",
-                term: "YR",
-                teacher: "Cruz, Donald; Conley, William",
-                email: "william.conley@dodea.edu",
-                classroom: "F117",
-                performance: "",
-                abs: 8,
-                tdy: 4,
-                dsm: 0
-            },
-            {
-                id: 3,
-                description: "Biology in the Living Environment",
-                term: "YR",
-                teacher: "Campbell, Katina; Depriest, Dennis",
-                email: "katina.campbell@dodea.edu",
-                classroom: "A202",
-                performance: "",
-                abs: 9,
-                tdy: 1,
-                dsm: 0
-            },
-            {
-                id: 4,
-                description: "Pre AP ELA 2",
-                term: "YR",
-                teacher: "Pangrazio, Kellie; Spitzer, Karen",
-                email: "Kellie.Pangrazio@dodea.edu",
-                classroom: "A208",
-                performance: "",
-                abs: 5,
-                tdy: 1,
-                dsm: 1
-            },
-            {
-                id: 5,
-                description: "German III",
-                term: "YR",
-                teacher: "Gerhart, Laura",
-                email: "laura.gerhart@dodea.edu",
-                classroom: "D108",
-                performance: "",
-                abs: 7,
-                tdy: 0,
-                dsm: 2
-            },
-            {
-                id: 6,
-                description: "Geometry",
-                term: "YR",
-                teacher: "von Eicken, Aryan; Spitzer, Karen",
-                email: "aryan.voneicken@dodea.edu",
-                classroom: "B207",
-                performance: "",
-                abs: 5,
-                tdy: 0,
-                dsm: 0
-            },
-            {
-                id: 7,
-                description: "Global Studies: Ancient - 1750 CE",
-                term: "YR",
-                teacher: "Bratcher, Denine",
-                email: "denine.bratcher@dodea.edu",
-                classroom: "A204",
-                performance: "",
-                abs: 8,
-                tdy: 0,
-                dsm: 1
-            },
-            {
-                id: 8,
-                description: "Seminar",
-                term: "YR",
-                teacher: "Gerhart, Laura",
-                email: "laura.gerhart@dodea.edu",
-                classroom: "D108",
-                performance: "",
-                abs: 5,
-                tdy: 0,
-                dsm: 0
-            }
-        ]
+<!-- ═══════════════════ PORTAL PAGE ═══════════════════ -->
+<div id="portalPage" style="display:none">
+  <div class="portal-header">
+    <div class="ph-left">
+      <div class="school-name" id="phSchoolName">Kaiserslautern/Sembach 2025-2026</div>
+      <div class="student-italic" id="phStudentName">King-Nuako, Julian</div>
+    </div>
+    <div class="ph-right">
+      <span class="ph-student" onclick="openSettings()" title="Settings">
+        <span id="phStudentDropdown">King-Nuako, Julian</span> ▾
+      </span>
+      <span class="ph-logoff" onclick="handleLogout()">&#8677; Log Off</span>
+    </div>
+  </div>
+  <div class="portal-nav">
+    <button class="nav-tab" onclick="switchTab('pages')">Pages</button>
+    <button class="nav-tab" onclick="switchTab('myinfo')">My Info</button>
+    <button class="nav-tab" onclick="switchTab('academics')">Academics</button>
+    <button class="nav-tab" onclick="switchTab('calendar')">Calendar</button>
+  </div>
+  <div class="portal-content">
+    <div id="tabPages"></div>
+    <div id="tabMyInfo"></div>
+    <div id="tabAcademics"></div>
+    <div id="tabCalendar"></div>
+  </div>
+</div>
 
-        // Generate random realistic grade (A+/A/A-/B+/B etc with percentage)
-        function generateRandomGrade() {
-            const percent = (60 + Math.random() * 40).toFixed(2)
-            const num = parseFloat(percent)
-            let letter = ''
-            if (num >= 97) letter = 'A+'
-            else if (num >= 93) letter = 'A'
-            else if (num >= 90) letter = 'A-'
-            else if (num >= 87) letter = 'B+'
-            else if (num >= 83) letter = 'B'
-            else if (num >= 80) letter = 'B-'
-            else if (num >= 77) letter = 'C+'
-            else if (num >= 73) letter = 'C'
-            else if (num >= 70) letter = 'C-'
-            else if (num >= 67) letter = 'D+'
-            else if (num >= 63) letter = 'D'
-            else if (num >= 60) letter = 'D-'
-            else letter = 'F'
-            return `${percent} ${letter}`
-        }
+<!-- ═══════════════════ REPORT CARD MODAL ═══════════════════ -->
+<div id="rcModal">
+  <div class="rc-scroller">
+    <div class="rc-outer">
+      <button class="rc-close" onclick="closeRC()">&times;</button>
+      <button class="rc-print-btn" onclick="window.print()">&#128424; Print / Save PDF</button>
+      <div id="rcContent"></div>
+    </div>
+  </div>
+</div>
 
-        // Render the classes table with editable grade field
-        function renderClassesTable() {
-            const tbody = document.getElementById('classes-table')
-            tbody.innerHTML = ''
-            
-            classesData.forEach((cls, index) => {
-                const row = document.createElement('tr')
-                row.className = index % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'
-                row.innerHTML = `
-                    <td class="px-3"><input type="checkbox" class="w-4 h-4"></td>
-                    <td class="px-4 py-4 font-medium text-blue-700">${cls.description}</td>
-                    <td class="px-4 py-4">${cls.term}</td>
-                    <td class="px-4 py-4">${cls.teacher}</td>
-                    <td class="px-4 py-4 text-blue-700 underline">${cls.email}</td>
-                    <td class="px-4 py-4">${cls.classroom}</td>
-                    <td class="px-4 py-4">
-                        <input type="text" 
-                               class="grade-input text-center font-medium" 
-                               value="${cls.performance || ''}" 
-                               onchange="classesData[${index}].performance = this.value">
-                    </td>
-                    <td class="text-center py-4">${cls.abs}</td>
-                    <td class="text-center py-4">${cls.tdy}</td>
-                    <td class="text-center py-4">${cls.dsm}</td>
-                `
-                tbody.appendChild(row)
-            })
-        }
+<!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
+<div id="settingsModal">
+  <div class="set-scroller">
+    <div class="set-box">
+      <button class="set-close" onclick="closeSettings()">&times;</button>
+      <div class="set-title">&#9881; Portal Settings</div>
 
-        // Randomize all grades
-        function randomizeGrades() {
-            classesData.forEach(cls => {
-                cls.performance = generateRandomGrade()
-            })
-            renderClassesTable()
-            // Auto-save after randomizing
-            localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
-        }
+      <div class="set-sec-lbl">Student Information</div>
+      <div class="sf"><label>Full Name (Last, First)</label><input type="text" id="sStudentName"></div>
+      <div class="sf"><label>Grade</label><input type="text" id="sGrade" style="max-width:60px"></div>
+      <div class="sf"><label>Homeroom</label><input type="text" id="sHomeroom" style="max-width:80px"></div>
+      <div class="sf"><label>Counselor</label><input type="text" id="sCounselor"></div>
+      <div class="sf"><label>Homeroom Teacher</label><input type="text" id="sHomeroomTeacher"></div>
+      <div class="sf"><label>Sponsor Name</label><input type="text" id="sSponsor"></div>
+      <div class="sf"><label>Sponsor Address</label><input type="text" id="sSponsorAddr"></div>
+      <div class="sf"><label>Principal</label><input type="text" id="sPrincipal"></div>
+      <div class="sf"><label>School Year</label><input type="text" id="sSchoolYear" style="max-width:100px"></div>
 
-        // Save grades to localStorage so they persist on reload
-        function saveGrades() {
-            localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
-            const btn = event.currentTarget
-            const original = btn.innerHTML
-            btn.innerHTML = '✅ SAVED!'
-            btn.style.backgroundColor = '#10b981'
-            setTimeout(() => {
-                btn.innerHTML = original
-                btn.style.backgroundColor = ''
-            }, 1200)
-        }
+      <div class="set-sec-lbl">Classes <button class="add-cls-btn" onclick="addClassRow()">+ Add Class</button></div>
+      <div style="font-size:11px;color:#888;margin-bottom:8px;display:grid;grid-template-columns:2fr 2fr 70px 55px;gap:5px;padding:0 0 0 0">
+        <span>Class Name</span><span>Teacher (Last, First)</span><span>Room</span><span>Term</span>
+      </div>
+      <div id="clsEditContainer"></div>
 
-        // Load saved grades or create new random ones
-        function loadSavedGrades() {
-            const saved = localStorage.getItem('dodea_clone_grades')
-            if (saved) {
-                classesData = JSON.parse(saved)
-            } else {
-                // First time = random grades
-                classesData.forEach(cls => {
-                    cls.performance = generateRandomGrade()
-                })
-                localStorage.setItem('dodea_clone_grades', JSON.stringify(classesData))
-            }
-            renderClassesTable()
-        }
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <button class="set-save-btn" onclick="saveSettings()">Save Settings</button>
+        <span class="saved-msg" id="savedMsg">✓ Saved!</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Switch between the four main tabs
-        function switchTab(n) {
-            // Deactivate all tabs
-            document.querySelectorAll('.header-green > div').forEach(tab => tab.classList.remove('tab-active'))
-            // Activate clicked
-            document.getElementById(`tab-${n}`).classList.add('tab-active')
-            
-            // Hide all contents
-            document.getElementById('content-0').classList.add('hidden')
-            document.getElementById('content-1').classList.add('hidden')
-            document.getElementById('content-2').classList.add('hidden')
-            document.getElementById('content-3').classList.add('hidden')
-            
-            // Show the chosen one
-            document.getElementById(`content-${n}`).classList.remove('hidden')
-            
-            // Update sidebar
-            updateSidebar(n)
-            
-            // Update fake browser title
-            if (n === 2) document.querySelector('.browser-bar span:last-child').textContent = 'Aspen: Classes'
-            else if (n === 0) document.querySelector('.browser-bar span:last-child').textContent = 'Aspen: Pages'
-        }
+<script>
+// ═══════════════════════════════════════════════════════════
+// GOOGLE SIGN-IN CONFIG — Replace with your Google Client ID
+// ═══════════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
 
-        function updateSidebar(tab) {
-            const sidebar = document.getElementById('sidebar')
-            if (tab === 0) { // Pages
-                sidebar.innerHTML = `
-                    <div class="p-4 border-b bg-emerald-50 flex items-center gap-2 cursor-pointer">
-                        <span class="text-2xl">🏠</span>
-                        <span class="font-medium">Home</span>
-                    </div>
-                    <div class="px-4 py-3 text-xs text-gray-400">PAGE DIRECTORY</div>
-                    <div class="px-6 py-3 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-sm">
-                        📋 Announcements
-                    </div>
-                `
-            } else if (tab === 2) { // Academics
-                sidebar.innerHTML = `
-                    <div class="px-4 py-4 text-xs font-medium bg-gray-100">Details</div>
-                    <div class="px-4 py-4 text-xs font-medium border-b">Assignments</div>
-                    <div class="px-4 py-4 text-xs font-medium border-b">Attendance</div>
-                    <div class="px-6 py-5 text-xs text-emerald-700">← Back to full Academics view</div>
-                `
-            } else {
-                sidebar.innerHTML = `<div class="p-10 text-center text-xs text-gray-400">No sidebar content for this tab in the real Aspen portal.</div>`
-            }
-        }
+// ═══════════════════════════════════════════════════════════
+// DEFAULT STATE
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_STATE = {
+  loggedIn: false,
+  studentName: 'King-Nuako, Julian',
+  grade: '09',
+  homeroom: 'D108',
+  counselor: 'Kendra Wagers',
+  homeroomTeacher: 'Gerhart, Laura',
+  sponsor: 'Mr. Walter Nuako',
+  sponsorAddr: 'CMR 469 Box 850 / APO, AE 09227',
+  principal: 'Dr. Susan Paul',
+  schoolYear: '2025-2026',
+  classes: [
+    {id:1,name:'Foundations of Fitness',teacher:'Crawford, Stephanie',classroom:'GYM',term:'S2',abs:6,tdy:0,dsm:0},
+    {id:2,name:'Air Force JROTC I',teacher:'Conley, William',classroom:'F117',term:'YR',abs:8,tdy:4,dsm:0},
+    {id:3,name:'Biology in the Living Environment',teacher:'Campbell, Katina',classroom:'A202',term:'YR',abs:9,tdy:1,dsm:0},
+    {id:4,name:'Pre AP ELA 2',teacher:'Pangrazio, Kellie',classroom:'A208',term:'YR',abs:5,tdy:1,dsm:1},
+    {id:5,name:'German III',teacher:'Gerhart, Laura',classroom:'D108',term:'YR',abs:7,tdy:0,dsm:2},
+    {id:6,name:'Geometry',teacher:'von Eicken, Aryan',classroom:'B207',term:'YR',abs:5,tdy:0,dsm:0},
+    {id:7,name:'Global Studies: Ancient - 1750 CE',teacher:'Bratcher, Denine',classroom:'A204',term:'YR',abs:8,tdy:0,dsm:1},
+    {id:8,name:'Seminar',teacher:'Gerhart, Laura',classroom:'D108',term:'YR',abs:5,tdy:0,dsm:0},
+  ],
+  grades: {},
+  rcGrades: {}
+};
 
-        // Fake login - works with ANY account / password
-        function attemptLogin() {
-            // No matter what you type, it logs you in
-            document.getElementById('login-screen').classList.add('hidden')
-            document.getElementById('portal-screen').classList.remove('hidden')
-            
-            // Load the classes with random or saved grades
-            loadSavedGrades()
-            
-            // Default to Pages tab
-            switchTab(0)
-            
-            console.log('%c✅ Logged in successfully (any credentials work)', 'color:#10b981;font-weight:bold')
-        }
+let state = {};
+let currentTab = 'pages';
+let currentAcadView = 'details';
+let currentClassId = null;
+let pendingGrades = null; // grades not yet saved
 
-        function logout() {
-            if (confirm('Log off Aspen?')) {
-                localStorage.removeItem('dodea_clone_grades') // optional - clears saved grades
-                location.reload()
-            }
-        }
+// ═══════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  try {
+    const saved = localStorage.getItem('aspenPortalState');
+    if (saved) {
+      state = Object.assign({}, DEFAULT_STATE, JSON.parse(saved));
+    } else {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+  } catch(e) {
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+  // Ensure all classes have default grade
+  if (!state.grades) state.grades = {};
+  if (!state.rcGrades) state.rcGrades = {};
+  state.classes.forEach(c => {
+    if (!state.grades[c.id]) {
+      state.grades[c.id] = genAGrade().display;
+    }
+  });
+}
 
-        // Initialize everything
-        window.onload = function () {
-            initTailwind()
-            // Portal is hidden until login
-            console.log('%c🚀 Hyper-realistic DoDEA Aspen clone ready! Login works with any username/password.', 'color:#0a4a8c;font-size:18px')
-        }
-    </script>
+function saveStateToStorage() {
+  try { localStorage.setItem('aspenPortalState', JSON.stringify(state)); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// GRADE GENERATORS
+// ═══════════════════════════════════════════════════════════
+function genAGrade() {
+  const r = Math.random();
+  let num, letter;
+  if (r < 0.33) { num = 89.9 + Math.random() * 3.05; letter = 'A-'; }
+  else if (r < 0.67) { num = 93.0 + Math.random() * 3.9; letter = 'A'; }
+  else { num = 97.0 + Math.random() * 3.0; if (num > 100) num = 100; letter = 'A+'; }
+  const display = parseFloat(num.toFixed(2)).toString() + ' ' + letter;
+  return { display, letter, num };
+}
+
+function genABGrade() {
+  const opts = [
+    [89.9, 92.9, 'A-'], [93, 96.9, 'A'], [97, 100, 'A+'],
+    [87, 89.8, 'B+'], [83, 86.9, 'B'], [80, 82.9, 'B-']
+  ];
+  const pick = opts[Math.floor(Math.random() * opts.length)];
+  let num = pick[0] + Math.random() * (pick[1] - pick[0]);
+  if (num > 100) num = 100;
+  return pick[2];
+}
+
+function genALetterOnly() {
+  const opts = ['A-','A','A+'];
+  return opts[Math.floor(Math.random() * 3)];
+}
+
+function gradeNumOnly(gradeStr) { return gradeStr ? gradeStr.split(' ')[0] : ''; }
+function gradeLetter(gradeStr) { return gradeStr ? (gradeStr.split(' ')[1] || '') : ''; }
+
+function ensureRCGrades() {
+  state.classes.forEach(c => {
+    if (!state.rcGrades[c.id]) {
+      const isSeminar = c.name.toLowerCase().includes('seminar');
+      state.rcGrades[c.id] = {
+        q1: genABGrade(), q1abs: Math.floor(c.abs * 0.25),
+        q1exam: genABGrade(), q1sem: genABGrade(),
+        q2: genABGrade(), q2abs: Math.floor(c.abs * 0.25),
+        q2exam: genABGrade(), q2sem: genABGrade(),
+        q3: genALetterOnly(), q3abs: Math.floor(c.abs * 0.3),
+        q4: gradeLetter(state.grades[c.id]) || 'A', q4abs: ''
+      };
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  loadState();
+  setTimeout(() => {
+    hide('loadingOverlay');
+    if (state.loggedIn) {
+      showPortal();
+    } else {
+      show('loginPage', 'flex');
+    }
+  }, 1400);
+}
+
+function show(id, display='block') { document.getElementById(id).style.display = display; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════════
+function handleLogin(e) {
+  if (e) e.preventDefault();
+  showLoading('Signing in…');
+  setTimeout(() => {
+    state.loggedIn = true;
+    saveStateToStorage();
+    hide('loadingOverlay');
+    hide('loginPage');
+    showPortal();
+  }, 1100 + Math.random() * 700);
+}
+
+function handleProviderSignIn() {
+  handleLogin(null);
+}
+
+function handleGoogleSignIn() {
+  if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com') {
+    // Real Google OAuth
+    if (window.google && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (resp) => {
+          showLoading('Authenticating with Google…');
+          setTimeout(() => {
+            state.loggedIn = true;
+            saveStateToStorage();
+            hide('loadingOverlay');
+            hide('loginPage');
+            showPortal();
+          }, 800);
+        },
+        ux_mode: 'popup'
+      });
+      google.accounts.id.prompt();
+    } else {
+      // GIS not loaded yet, fallback
+      handleLogin(null);
+    }
+  } else {
+    // No client ID — simulate
+    showLoading('Connecting to Google…');
+    setTimeout(() => {
+      showLoading('Authenticating…');
+      setTimeout(() => {
+        state.loggedIn = true;
+        saveStateToStorage();
+        hide('loadingOverlay');
+        hide('loginPage');
+        showPortal();
+      }, 900);
+    }, 800);
+  }
+}
+
+function handleLogout() {
+  showLoading('Signing out…');
+  setTimeout(() => {
+    state.loggedIn = false;
+    pendingGrades = null;
+    saveStateToStorage();
+    hide('loadingOverlay');
+    hide('portalPage');
+    show('loginPage', 'flex');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+  }, 700);
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg || 'Loading…';
+  show('loadingOverlay');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PORTAL INIT
+// ═══════════════════════════════════════════════════════════
+function showPortal() {
+  show('portalPage', 'flex');
+  updateHeaderNames();
+  switchTab('pages');
+}
+
+function updateHeaderNames() {
+  const n = state.studentName;
+  document.getElementById('phStudentName').textContent = n;
+  document.getElementById('phStudentDropdown').textContent = n;
+  document.getElementById('phSchoolName').textContent = `Kaiserslautern/Sembach ${state.schoolYear}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab) {
+  currentTab = tab;
+  // nav buttons
+  document.querySelectorAll('.nav-tab').forEach((btn, i) => {
+    const tabs = ['pages','myinfo','academics','calendar'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
+  // content
+  ['tabPages','tabMyInfo','tabAcademics','tabCalendar'].forEach(id => hide(id));
+  if (tab === 'pages') { show('tabPages'); renderPages(); }
+  else if (tab === 'myinfo') { show('tabMyInfo'); renderMyInfo(); }
+  else if (tab === 'academics') { show('tabAcademics'); renderAcademics('details', null); }
+  else if (tab === 'calendar') { show('tabCalendar'); renderCalendar(); }
+  document.title = tab === 'pages' ? 'Aspen: Pages' : tab === 'academics' ? 'Aspen: Classes' : tab === 'myinfo' ? 'Aspen: My Info' : 'Aspen: Calendar';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAGES TAB
+// ═══════════════════════════════════════════════════════════
+function renderPages() {
+  const n = state.studentName;
+  const firstName = getFirstName(n);
+  const today = new Date();
+  const dateStr = formatDate(today);
+  const tmrDate = new Date(today); tmrDate.setDate(tmrDate.getDate() + 1);
+  const tmrDateStr = formatDate(tmrDate);
+  const activity = generateRecentActivity();
+
+  const tomorrow = getTomorrowAssignment();
+
+  document.getElementById('tabPages').innerHTML = `
+<div class="pages-wrap">
+  <div class="pages-sidebar">
+    <div class="pages-sb-item"><div class="pages-sb-icon">&#127968;</div>Home</div>
+    <div class="pages-sb-item"><div class="pages-sb-icon">&#128193;</div>Page Directory</div>
+  </div>
+  <div class="pages-main">
+    <div class="pg-announce">
+      <div class="pg-header">Announcements</div>
+      <div class="pg-body">
+        <b>Welcome to the DoDEA Student Portal!</b><br>
+        The Student Portal allows you to keep up with progress in school - including grades, assignments, attendance, and more. To view your grades and attendance, click the Academics top tab.
+      </div>
+    </div>
+    <div class="pages-grid">
+      <div class="pg-section">
+        <div class="pg-header">To Do</div>
+        <div class="pg-body">
+          <div class="todo-filters">
+            <label class="todo-cb"><input type="checkbox" checked> Overdue Online Assignments</label>
+            <label class="todo-cb"><input type="checkbox" checked> Tomorrow</label>
+            <label class="todo-cb"><input type="checkbox" checked> Today</label>
+            <span class="week-view-link" onclick="switchTab('calendar')">Week View</span>
+          </div>
+          <div class="todo-subhdr">Overdue Online Assignments</div>
+          <table class="todo-tbl"><thead><tr><th>Course</th><th>Assignment</th><th>Category</th><th>Due</th></tr></thead>
+          <tbody><tr><td colspan="4" class="no-asgn">No assignments scheduled.</td></tr></tbody></table>
+          <div class="todo-subhdr">Today: ${today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+          <table class="todo-tbl"><thead><tr><th>Course</th><th>Assignment</th><th>Category</th><th>Completed</th></tr></thead>
+          <tbody><tr><td colspan="4" class="no-asgn">No assignments scheduled.</td></tr></tbody></table>
+          <div class="todo-subhdr">Tomorrow: ${tmrDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+          <table class="todo-tbl"><thead><tr><th>Course</th><th>Assignment</th><th>Category</th><th>Completed</th></tr></thead>
+          <tbody>
+            <tr><td>${tomorrow.course}</td><td><a class="cls-link">${tomorrow.name}</a></td><td>${tomorrow.cat}</td><td><input type="checkbox"></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div>
+        <div class="pg-section" style="margin-bottom:6px">
+          <div class="pg-header">Published Reports</div>
+          <div class="pg-body">
+            <table class="rep-tbl">
+              <thead><tr><th>Filename</th><th>DateUploaded</th><th>Creator</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><span class="pdf-ico">&#128196;</span><a class="rep-link" onclick="openRC()">DoDEA Secondary Report Card (All Terms)</a> <small style="color:#888">3 KB</small></td>
+                  <td>4/10/2026 6:56 AM</td>
+                  <td>Moore, Cynthia</td>
+                  <td>Report card for ${n}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11px;color:#555;margin-top:4px;text-align:center">[1 - 1 of 1]</div>
+          </div>
+        </div>
+        <div class="pg-section">
+          <div class="pg-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Recent Activity</span>
+            <span style="font-size:11px;background:#fff;border:1px solid #ccc;padding:2px 8px;border-radius:2px;color:#333;cursor:pointer">Last 30 days &#9660;</span>
+          </div>
+          <div class="pg-body">
+            <div style="font-size:12px;margin-bottom:6px;display:flex;gap:10px;align-items:center">
+              Search: <label style="display:flex;align-items:center;gap:3px;font-size:12px"><input type="checkbox" checked> <span style="color:#1a6dcd">Attendance</span></label>
+              <label style="display:flex;align-items:center;gap:3px;font-size:12px"><input type="checkbox" checked> <span style="color:#1a6dcd">Grades</span></label>
+            </div>
+            <ul class="act-list">${activity.map(a=>`<li>
+              <span class="act-date">${a.date}</span> - 
+              <span class="act-cat">Assignment Grade</span>
+              (${a.course}) <span class="act-grade-label">Grade: ${a.grade}</span> Assignment: ${a.name}
+            </li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+function getTomorrowAssignment() {
+  const gs = state.classes.find(c=>c.name.toLowerCase().includes('global')||c.name.toLowerCase().includes('studies'));
+  if (gs) return {course: gs.name.substring(0,7)+'Std9', name:'Mapping Tang & Song Empires 7 Questions', cat:'ClassAssignments'};
+  const first = state.classes[0];
+  return {course: first ? first.name.substring(0,8) : 'Course', name:'Weekly Assignment', cat:'ClassAssignments'};
+}
+
+function generateRecentActivity() {
+  const items = [];
+  const today = new Date();
+  const dates = [
+    new Date(today.getTime() - 2*86400000),
+    new Date(today.getTime() - 2*86400000),
+    new Date(today.getTime() - 2*86400000),
+    new Date(today.getTime() - 3*86400000),
+    new Date(today.getTime() - 3*86400000),
+    new Date(today.getTime() - 4*86400000),
+    new Date(today.getTime() - 4*86400000),
+    new Date(today.getTime() - 4*86400000),
+  ];
+
+  const pool = getAssignmentPool();
+  let usedClasses = new Set();
+
+  pool.slice(0,8).forEach((item,i) => {
+    const d = dates[i] || dates[dates.length-1];
+    const dateStr = `${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}/${d.getFullYear()}`;
+    const gradeObj = genAGrade();
+    const ptsMap = {'100 pts': 100, '5 pts': 5, '10 pts': 10, '50 pts': 50};
+    let rawGrade = item.pts === 100 ? Math.round(gradeObj.num) :
+                   item.pts === 5 ? (Math.round(gradeObj.num / 10 * 5) / 10).toFixed(1) :
+                   item.pts === 10 ? Math.round(gradeObj.num / 10) :
+                   Math.round(gradeObj.num / 2);
+    items.push({date:dateStr, course:item.className, name:item.name, grade:rawGrade});
+  });
+  return items;
+}
+
+function getAssignmentPool() {
+  const pool = [];
+  state.classes.forEach(c => {
+    const asgns = getAssignmentsForClass(c);
+    asgns.slice(0,2).forEach(a => pool.push({...a, className:c.name}));
+  });
+  return pool;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACADEMICS TAB
+// ═══════════════════════════════════════════════════════════
+function renderAcademics(view, classId) {
+  currentAcadView = view;
+  currentClassId = classId;
+
+  const sidebar = `
+<div class="acad-sidebar">
+  <a class="acad-sb-item${view==='details'?' active':''}" onclick="renderAcademics('details',null)">Details</a>
+  <a class="acad-sb-item${view==='assignments'?' active':''}" onclick="${classId?`renderAcademics('assignments',${classId})`:`renderAcademics('assignments',${state.classes[0]?.id||1})`}">Assignments</a>
+  <a class="acad-sb-item${view==='attendance'?' active':''}" onclick="renderAcademics('attendance',null)">Attendance</a>
+</div>`;
+
+  let mainContent = '';
+  if (view === 'details') mainContent = renderClassesTable();
+  else if (view === 'assignments') mainContent = renderAssignmentsView(classId);
+  else if (view === 'attendance') mainContent = renderAttendanceView();
+
+  document.getElementById('tabAcademics').innerHTML = `
+<div class="acad-layout">
+  ${sidebar}
+  <div class="acad-main">${mainContent}</div>
+</div>`;
+}
+
+function renderClassesTable() {
+  const displayGrades = pendingGrades || state.grades;
+  const rows = state.classes.map(c => {
+    const g = c.name.toLowerCase().includes('seminar') ? '' : (displayGrades[c.id] || '');
+    const email = teacherToEmail(c.teacher);
+    return `<tr>
+      <td><input type="checkbox"></td>
+      <td><a class="cls-link" onclick="renderAcademics('assignments',${c.id})">${esc(c.name)}</a></td>
+      <td>${c.term}</td>
+      <td>${esc(c.teacher)}</td>
+      <td><a href="mailto:${email}" style="color:#1a6dcd">${email}</a></td>
+      <td>${c.classroom}</td>
+      <td class="perf-grade">${g}</td>
+      <td>${c.abs}</td>
+      <td>${c.tdy}</td>
+      <td>${c.dsm}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+<div class="classes-view">
+  <div class="cls-top">
+    <div class="cls-title">Classes</div>
+    <div class="grade-btns">
+      <button class="btn-rand" onclick="randomizeGrades()">&#127922; Randomize Grades</button>
+      <button class="btn-sv" onclick="saveGrades()">&#128190; Save Grades</button>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="tb-btn">Options &#9660;</button>
+    <button class="tb-btn">Reports &#9660;</button>
+    <button class="tb-btn">Help &#9660;</button>
+    <div style="display:flex;align-items:center;gap:0">
+      <input class="tb-search" placeholder="Search on Term" type="text">
+      <div class="tb-ico">&#128269;</div>
+    </div>
+    <div class="tb-ico" title="Filter">&#11168;</div>
+    <div class="tb-ico" title="Grid">&#10697;</div>
+    <div class="tb-ico" title="Sort">a-z</div>
+    <select class="tb-select">
+      <option>Current Year</option>
+      <option>Previous Year</option>
+    </select>
+    <select class="tb-select" id="termSelect">
+      <option>Current Term</option>
+      <option>Q4</option>
+      <option>Q3</option>
+      <option>Q2</option>
+      <option>Q1</option>
+    </select>
+  </div>
+  <div class="sel-info">0 of ${state.classes.length} selected <span class="eraser" title="Clear selection">&#9003;</span></div>
+  <div style="overflow-x:auto">
+  <table class="cls-tbl">
+    <thead><tr>
+      <th><input type="checkbox"></th>
+      <th>Description</th><th>Term</th><th>Teacher</th>
+      <th>Primary Staff &gt; Email1</th><th>Clssrm</th>
+      <th>Term Performance</th><th>Abs</th><th>Tdy</th><th>Dsm</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  </div>
+</div>`;
+}
+
+function randomizeGrades() {
+  pendingGrades = {};
+  state.classes.forEach(c => {
+    if (!c.name.toLowerCase().includes('seminar')) {
+      pendingGrades[c.id] = genAGrade().display;
+    }
+  });
+  renderAcademics('details', null);
+  // Flash notification
+  const btn = document.querySelector('.btn-rand');
+  if (btn) { btn.textContent = '✓ Randomized!'; setTimeout(()=>{ btn.textContent = '🎲 Randomize Grades'; }, 1500); }
+}
+
+function saveGrades() {
+  if (pendingGrades) {
+    state.grades = Object.assign({}, state.grades, pendingGrades);
+    pendingGrades = null;
+  }
+  // Also update RC grades for Q4
+  state.classes.forEach(c => {
+    if (state.rcGrades[c.id]) {
+      state.rcGrades[c.id].q4 = gradeLetter(state.grades[c.id]) || 'A';
+    }
+  });
+  saveStateToStorage();
+  const btn = document.querySelector('.btn-sv');
+  if (btn) { btn.textContent = '✓ Saved!'; setTimeout(()=>{ btn.textContent = '💾 Save Grades'; }, 1500); }
+  renderAcademics('details', null);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ASSIGNMENTS VIEW
+// ═══════════════════════════════════════════════════════════
+function renderAssignmentsView(classId) {
+  const cls = state.classes.find(c=>c.id==classId) || state.classes[0];
+  if (!cls) return '<p>No class selected.</p>';
+  const asgns = getAssignmentsForClass(cls);
+  const rows = asgns.map(a => {
+    return `<tr>
+      <td>${a.date}</td>
+      <td>${esc(a.name)}</td>
+      <td>${a.cat}</td>
+      <td>${a.pts} pts</td>
+      <td class="asgn-grade-col">${a.score}/${a.pts}</td>
+      <td>${getLetterFromPercent(a.score/a.pts*100)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+<div>
+  <div style="margin-bottom:8px">
+    <select class="tb-select" style="margin-right:6px">
+      ${state.classes.map(c=>`<option value="${c.id}"${c.id==classId?' selected':''}>${esc(c.name)}</option>`).join('')}
+    </select>
+  </div>
+  <a class="asgn-back" onclick="renderAcademics('details',null)">&#8592; Back to Classes</a>
+  <div class="asgn-title">${esc(cls.name)} — Assignments</div>
+  <div style="font-size:12px;color:#555;margin-bottom:8px">Teacher: ${esc(cls.teacher)} &nbsp;|&nbsp; Room: ${cls.classroom} &nbsp;|&nbsp; Term: ${cls.term}</div>
+  <div style="overflow-x:auto">
+  <table class="asgn-tbl">
+    <thead><tr>
+      <th>Date</th><th>Assignment</th><th>Category</th><th>Points</th><th>Score</th><th>Grade</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  </div>
+</div>`;
+}
+
+function getAssignmentsForClass(cls) {
+  const name = cls.name.toLowerCase();
+  const today = new Date();
+  const baseGradeNum = parseFloat(gradeNumOnly(state.grades[cls.id])) || 93;
+
+  let templates = [];
+  if (name.includes('geometr') || name.includes('math')) {
+    templates = [
+      {name:'M4T2W3',cat:'ClassAssignments',pts:100},
+      {name:'M4T2W2',cat:'ClassAssignments',pts:100},
+      {name:'M4T2W1',cat:'ClassAssignments',pts:100},
+      {name:'WUQ4#1',cat:'Quiz',pts:5},
+      {name:'WUQ3#4',cat:'Quiz',pts:5},
+      {name:'Chapter 8 Practice Test',cat:'ClassAssignments',pts:20},
+      {name:'Properties of Quadrilaterals WS',cat:'ClassAssignments',pts:30},
+      {name:'Unit 4 Test',cat:'Test',pts:100},
+    ];
+  } else if (name.includes('biolog') || name.includes('living env')) {
+    templates = [
+      {name:'Microscope Labeling Quiz',cat:'Quiz',pts:50},
+      {name:'Chapter 16 Focused Notes',cat:'ClassAssignments',pts:10},
+      {name:'NTI Assignment: Cell Division',cat:'ClassAssignments',pts:100},
+      {name:'Lab Report: Osmosis',cat:'ClassAssignments',pts:100},
+      {name:'Chapter 15 Test',cat:'Test',pts:100},
+      {name:'Genetics Vocabulary',cat:'ClassAssignments',pts:20},
+      {name:'Ecology Diagram',cat:'ClassAssignments',pts:50},
+    ];
+  } else if (name.includes('german') || name.includes('flg')) {
+    templates = [
+      {name:'M3 K4B Fotoroman: Auf Wiedersehen, Berlin!',cat:'ClassAssignments',pts:30},
+      {name:'Vocabulary Quiz Unit 3',cat:'Quiz',pts:20},
+      {name:'Composition: Mein Alltag',cat:'ClassAssignments',pts:100},
+      {name:'Listening Exercise 4B',cat:'ClassAssignments',pts:10},
+      {name:'Grammar: Dativ vs Akkusativ',cat:'ClassAssignments',pts:50},
+      {name:'Oral Assessment Chapter 3',cat:'ClassAssignments',pts:100},
+    ];
+  } else if (name.includes('ela') || name.includes('english') || name.includes('lae')) {
+    templates = [
+      {name:'Hunger Games Ch. 13–14 Discussion Post',cat:'ClassAssignments',pts:10},
+      {name:'Analytical Essay Draft',cat:'ClassAssignments',pts:100},
+      {name:'Vocabulary Week 12',cat:'ClassAssignments',pts:20},
+      {name:'Literary Devices Quiz',cat:'Quiz',pts:50},
+      {name:'Socratic Seminar Participation',cat:'Participation',pts:100},
+      {name:'Hunger Games Final Essay',cat:'ClassAssignments',pts:100},
+    ];
+  } else if (name.includes('global') || name.includes('studies') || name.includes('history') || name.includes('ssw')) {
+    templates = [
+      {name:'Mapping Tang & Song Empires 7 Questions',cat:'ClassAssignments',pts:100},
+      {name:'Document Analysis: Silk Road',cat:'ClassAssignments',pts:50},
+      {name:'Chapter Quiz: Byzantine Empire',cat:'Quiz',pts:20},
+      {name:'Mesopotamia DBQ',cat:'ClassAssignments',pts:100},
+      {name:'Primary Source Reading Response',cat:'ClassAssignments',pts:10},
+      {name:'Unit 3 Test: Ancient China',cat:'Test',pts:100},
+    ];
+  } else if (name.includes('jrotc') || name.includes('air force') || name.includes('vef')) {
+    templates = [
+      {name:'Drill Performance Assessment',cat:'ClassAssignments',pts:100},
+      {name:'Uniform Inspection Q4',cat:'ClassAssignments',pts:100},
+      {name:'Leadership Notebook Check',cat:'ClassAssignments',pts:50},
+      {name:'Written Test: Chain of Command',cat:'Test',pts:100},
+      {name:'Physical Training Log',cat:'ClassAssignments',pts:20},
+      {name:'Aerospace Science Chapter 4',cat:'ClassAssignments',pts:10},
+    ];
+  } else if (name.includes('fitness') || name.includes('pe') || name.includes('pef') || name.includes('health')) {
+    templates = [
+      {name:'Fitness Log Week 12',cat:'ClassAssignments',pts:100},
+      {name:'Cardiovascular Assessment',cat:'ClassAssignments',pts:100},
+      {name:'Strength Testing',cat:'ClassAssignments',pts:100},
+      {name:'Nutrition Journal',cat:'ClassAssignments',pts:50},
+      {name:'FitnessGram: Pacer Test',cat:'ClassAssignments',pts:100},
+    ];
+  } else {
+    templates = [
+      {name:'Weekly Check-in',cat:'Participation',pts:10},
+      {name:'Study Hall Log',cat:'Participation',pts:10},
+      {name:'Reflection Journal',cat:'ClassAssignments',pts:20},
+    ];
+  }
+
+  return templates.map((t, i) => {
+    const d = new Date(today.getTime() - i * 3 * 86400000);
+    const dateStr = `${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}/${d.getFullYear()}`;
+    const pct = Math.min(100, baseGradeNum + (Math.random() - 0.3) * 8);
+    const score = t.pts === 100 ? Math.round(pct) :
+                  t.pts === 50 ? Math.round(pct / 2) :
+                  t.pts === 30 ? Math.round(pct / 100 * 30) :
+                  t.pts === 20 ? Math.round(pct / 100 * 20) :
+                  t.pts === 10 ? Math.round(pct / 100 * 10) :
+                  parseFloat((pct / 100 * t.pts).toFixed(1));
+    return {...t, date:dateStr, score};
+  });
+}
+
+function getLetterFromPercent(p) {
+  if (p >= 97) return 'A+'; if (p >= 93) return 'A'; if (p >= 90) return 'A-';
+  if (p >= 87) return 'B+'; if (p >= 83) return 'B'; if (p >= 80) return 'B-';
+  if (p >= 77) return 'C+'; if (p >= 73) return 'C'; return 'C-';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ATTENDANCE VIEW
+// ═══════════════════════════════════════════════════════════
+function renderAttendanceView() {
+  const today = new Date();
+  const rows = state.classes.map(c => {
+    const excused = Math.floor(c.abs * 0.6);
+    const unexcused = c.abs - excused;
+    return `<tr>
+      <td><a class="cls-link">${esc(c.name)}</a></td>
+      <td>${c.abs}</td><td>${excused}</td><td>${unexcused}</td>
+      <td>${c.tdy}</td><td>${c.dsm}</td>
+    </tr>`;
+  }).join('');
+  return `
+<div class="cls-title" style="margin-bottom:10px">Attendance</div>
+<div style="overflow-x:auto">
+<table class="att-tbl">
+  <thead><tr><th>Class</th><th>Total Absences</th><th>Excused</th><th>Unexcused</th><th>Tardy</th><th>Dismissal</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MY INFO TAB
+// ═══════════════════════════════════════════════════════════
+function renderMyInfo() {
+  const n = state.studentName;
+  const [last, first] = n.split(', ');
+  document.getElementById('tabMyInfo').innerHTML = `
+<div class="mi-title">Student Information</div>
+<table class="info-tbl">
+  <tr><th>Name</th><td>${esc(n)}</td></tr>
+  <tr><th>Grade</th><td>${state.grade}</td></tr>
+  <tr><th>Homeroom</th><td>${state.homeroom}</td></tr>
+  <tr><th>Homeroom Teacher</th><td>${esc(state.homeroomTeacher)}</td></tr>
+  <tr><th>Counselor</th><td>${esc(state.counselor)}</td></tr>
+  <tr><th>School</th><td>Kaiserslautern High School</td></tr>
+  <tr><th>School Year</th><td>${state.schoolYear}</td></tr>
+  <tr><th>Sponsor</th><td>${esc(state.sponsor)}</td></tr>
+</table>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALENDAR TAB
+// ═══════════════════════════════════════════════════════════
+function renderCalendar() {
+  const today = new Date();
+  const yr = today.getFullYear();
+  const mo = today.getMonth();
+  const firstDay = new Date(yr, mo, 1).getDay();
+  const daysInMonth = new Date(yr, mo+1, 0).getDate();
+  const monthName = today.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+  let cells = '<tr>';
+  let col = 0;
+  for (let i = 0; i < firstDay; i++) { cells += '<td class="other-mo"></td>'; col++; }
+  for (let d = 1; d <= daysInMonth; d++) {
+    if (col === 7) { cells += '</tr><tr>'; col = 0; }
+    const isToday = d === today.getDate();
+    cells += `<td class="${isToday?'today-cell':''}">${d}</td>`;
+    col++;
+  }
+  while (col > 0 && col < 7) { cells += '<td class="other-mo"></td>'; col++; }
+  cells += '</tr>';
+
+  document.getElementById('tabCalendar').innerHTML = `
+<div class="cal-title">
+  <button class="cal-nav" onclick="renderCalendar()">&#8592;</button>
+  <span>${monthName}</span>
+  <button class="cal-nav" onclick="renderCalendar()">&#8594;</button>
+</div>
+<table class="cal-tbl">
+  <thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
+  <tbody>${cells}</tbody>
+</table>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// REPORT CARD
+// ═══════════════════════════════════════════════════════════
+function openRC() {
+  ensureRCGrades();
+  document.getElementById('rcContent').innerHTML = generateRCHTML();
+  document.getElementById('rcModal').classList.add('open');
+}
+function closeRC() { document.getElementById('rcModal').classList.remove('open'); }
+
+function generateRCHTML() {
+  const n = state.studentName;
+  const [sponsorName, ...sponsorRest] = state.sponsor.split(' / ');
+  const sponsorAddrParts = state.sponsorAddr.split(' / ');
+
+  const courseRows = state.classes.map(c => {
+    const rcG = state.rcGrades[c.id] || {};
+    const isSeminar = c.name.toLowerCase().includes('seminar');
+    const code = genCourseCode(c.name);
+    const creditVal = c.term === 'S2' || c.term === 'S1' ? '0.50' : '1.00';
+    const credit = isSeminar ? '0.00' : '0.50';
+    const q4ltr = rcG.q4 || gradeLetter(state.grades[c.id]) || 'A';
+
+    return `<tr class="rc-course-row">
+      <td rowspan="3" style="padding:3px 5px;vertical-align:top;min-width:160px">
+        <div class="rc-code">${code}</div>
+        <div class="rc-cname">${esc(c.name)}</div>
+      </td>
+      <td style="font-size:10px;color:#555;padding:2px 4px">Quarter</td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':rcG.q1||''}</b></td>
+      <td style="text-align:center;padding:2px 3px">${isSeminar?'':rcG.q1abs||''}</td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':rcG.q2||''}</b></td>
+      <td style="text-align:center;padding:2px 3px">${isSeminar?'':rcG.q2abs||''}</td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':rcG.q3||''}</b></td>
+      <td style="text-align:center;padding:2px 3px">${isSeminar?'':rcG.q3abs||''}</td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':q4ltr}</b></td>
+      <td style="text-align:center;padding:2px 3px"></td>
+      <td rowspan="3" style="padding:3px 5px;text-align:right;vertical-align:top;font-size:10.5px;min-width:90px">
+        <div class="rc-credit-val">Credit Value</div>
+        <div style="text-align:right;margin-bottom:4px">${creditVal}</div>
+        <div class="rc-credit-val">Credit</div>
+        <div style="text-align:right">${credit}</div>
+      </td>
+    </tr>
+    <tr class="rc-course-row">
+      <td style="font-size:10px;color:#555;padding:2px 4px">Exam</td>
+      <td colspan="2"></td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':rcG.q1exam||''}</b></td>
+      <td colspan="2"></td>
+      <td colspan="2"></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr class="rc-course-row">
+      <td style="font-size:10px;color:#555;padding:2px 4px">Semester</td>
+      <td colspan="2"></td>
+      <td style="text-align:center;padding:2px 3px"><b>${isSeminar?'':rcG.q1sem||''}</b></td>
+      <td colspan="2"></td>
+      <td colspan="2"></td>
+      <td colspan="2"></td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="rc-doc">
+  <div class="rc-topbar">
+    <span>April 10, 2026</span>
+    <span style="font-weight:bold">DEPARTMENT OF DEFENSE EDUCATION ACTIVITY</span>
+    <span>Page 1 of 1</span>
+  </div>
+  <div class="rc-title">Kaiserslautern High School Report Card ${state.schoolYear}</div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">
+    <tr>
+      <td style="padding:2px 6px 2px 0;width:25%"><span class="rc-lbl">Student Name</span><span class="rc-val">${esc(n)}</span></td>
+      <td style="padding:2px 6px;width:10%"><span class="rc-lbl">Grade</span><span class="rc-val">${state.grade}</span></td>
+      <td style="padding:2px 6px;width:15%"><span class="rc-lbl">Homeroom</span><span class="rc-val">${state.homeroom}</span></td>
+      <td style="padding:2px 0;width:25%" rowspan="2"><span class="rc-lbl">Sponsor</span><span class="rc-val">${esc(state.sponsor)}</span><br><span class="rc-val">${sponsorAddrParts[0]||''}</span><br><span class="rc-val">${sponsorAddrParts[1]||''}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:2px 6px 2px 0"></td>
+      <td style="padding:2px 6px"><span class="rc-lbl">Counselor</span><span class="rc-val">${esc(state.counselor)}</span></td>
+      <td style="padding:2px 6px"><span class="rc-lbl">Homeroom Teacher</span><span class="rc-val">${esc(state.homeroomTeacher)}</span></td>
+    </tr>
+  </table>
+
+  <table class="rc-tbl">
+    <thead>
+      <tr>
+        <th rowspan="2" style="text-align:left;min-width:180px">COURSE DESCRIPTION</th>
+        <th rowspan="2" style="text-align:left">TEACHER</th>
+        <th colspan="2">Quarter 1</th>
+        <th colspan="2">Quarter 2</th>
+        <th colspan="2">Quarter 3</th>
+        <th colspan="2">Quarter 4</th>
+        <th rowspan="2"></th>
+      </tr>
+      <tr>
+        <th>Mark</th><th>ABS</th>
+        <th>Mark</th><th>ABS</th>
+        <th>Mark</th><th>ABS</th>
+        <th>Mark</th><th>ABS</th>
+      </tr>
+    </thead>
+    <tbody>${courseRows}</tbody>
+  </table>
+
+  <div class="rc-foot">
+    <div class="rc-foot-addr">
+      Kaiserslautern High School<br>
+      OPC 3 Box 09<br>
+      APO, AE 09021<br>
+      63171 06 6420
+    </div>
+    <div class="rc-foot-prin">
+      <b>Principal</b><br>
+      ${esc(state.principal)}
+    </div>
+    <div class="rc-foot-sig"></div>
+  </div>
+</div>`;
+}
+
+function genCourseCode(name) {
+  const n = name.toLowerCase();
+  let prefix = 'GEN';
+  if (n.includes('german') || n.includes('french') || n.includes('spanish') || n.includes('language')) prefix='FLG';
+  else if (n.includes('health')) prefix='HLH';
+  else if (n.includes('ela') || n.includes('english') || n.includes('ap lang')) prefix='LAE';
+  else if (n.includes('math') || n.includes('geometr') || n.includes('algebra') || n.includes('calculus')) prefix='MAG';
+  else if (n.includes('pe') || n.includes('fitness') || n.includes('sport') || n.includes('physical')) prefix='PEF';
+  else if (n.includes('bio') || n.includes('chem') || n.includes('physics') || n.includes('science') || n.includes('living')) prefix='SCB';
+  else if (n.includes('history') || n.includes('studies') || n.includes('social') || n.includes('global') || n.includes('world')) prefix='SSW';
+  else if (n.includes('jrotc') || n.includes('air force') || n.includes('rotc')) prefix='VEF';
+  else if (n.includes('seminar') || n.includes('advisory')) prefix='SEM';
+  // Generate a number from the name
+  let hash = 0;
+  for (let i=0;i<name.length;i++) hash=(hash*31+name.charCodeAt(i))%999;
+  return prefix + (300 + hash % 600);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('sStudentName').value = state.studentName;
+  document.getElementById('sGrade').value = state.grade;
+  document.getElementById('sHomeroom').value = state.homeroom;
+  document.getElementById('sCounselor').value = state.counselor;
+  document.getElementById('sHomeroomTeacher').value = state.homeroomTeacher;
+  document.getElementById('sSponsor').value = state.sponsor;
+  document.getElementById('sSponsorAddr').value = state.sponsorAddr;
+  document.getElementById('sPrincipal').value = state.principal;
+  document.getElementById('sSchoolYear').value = state.schoolYear;
+  renderClassEditRows();
+  document.getElementById('settingsModal').classList.add('open');
+  document.getElementById('savedMsg').classList.remove('show');
+}
+
+function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+
+function renderClassEditRows() {
+  const container = document.getElementById('clsEditContainer');
+  container.innerHTML = state.classes.map((c,i) => `
+<div class="cls-edit" id="clsRow_${c.id}">
+  <div class="cls-edit-hdr">
+    <span>Class ${i+1}</span>
+    <button class="del-cls-btn" onclick="deleteClassRow(${c.id})">&#10005; Remove</button>
+  </div>
+  <div class="cls-edit-fields">
+    <input type="text" id="cName_${c.id}" value="${esc(c.name)}" placeholder="Class name">
+    <input type="text" id="cTeacher_${c.id}" value="${esc(c.teacher)}" placeholder="Last, First">
+    <input type="text" id="cRoom_${c.id}" value="${esc(c.classroom)}" placeholder="Room">
+    <input type="text" id="cTerm_${c.id}" value="${c.term}" placeholder="YR/S1/S2">
+  </div>
+  <div style="font-size:10.5px;color:#888;margin-top:4px">
+    Email: ${teacherToEmail(c.teacher)}
+  </div>
+</div>`).join('');
+
+  // Live email preview update
+  container.querySelectorAll('[id^="cTeacher_"]').forEach(inp => {
+    inp.addEventListener('input', function() {
+      const id = this.id.replace('cTeacher_','');
+      const preview = this.closest('.cls-edit').querySelector('div:last-child');
+      if (preview) preview.textContent = 'Email: ' + teacherToEmail(this.value);
+    });
+  });
+}
+
+function addClassRow() {
+  const newId = Date.now();
+  state.classes.push({id:newId,name:'',teacher:'',classroom:'',term:'YR',abs:0,tdy:0,dsm:0});
+  state.grades[newId] = genAGrade().display;
+  renderClassEditRows();
+}
+
+function deleteClassRow(id) {
+  state.classes = state.classes.filter(c=>c.id!=id);
+  delete state.grades[id];
+  delete state.rcGrades[id];
+  renderClassEditRows();
+}
+
+function saveSettings() {
+  state.studentName = document.getElementById('sStudentName').value.trim() || state.studentName;
+  state.grade = document.getElementById('sGrade').value.trim() || state.grade;
+  state.homeroom = document.getElementById('sHomeroom').value.trim() || state.homeroom;
+  state.counselor = document.getElementById('sCounselor').value.trim() || state.counselor;
+  state.homeroomTeacher = document.getElementById('sHomeroomTeacher').value.trim() || state.homeroomTeacher;
+  state.sponsor = document.getElementById('sSponsor').value.trim() || state.sponsor;
+  state.sponsorAddr = document.getElementById('sSponsorAddr').value.trim() || state.sponsorAddr;
+  state.principal = document.getElementById('sPrincipal').value.trim() || state.principal;
+  state.schoolYear = document.getElementById('sSchoolYear').value.trim() || state.schoolYear;
+
+  state.classes.forEach(c => {
+    const nameEl = document.getElementById('cName_'+c.id);
+    const teacherEl = document.getElementById('cTeacher_'+c.id);
+    const roomEl = document.getElementById('cRoom_'+c.id);
+    const termEl = document.getElementById('cTerm_'+c.id);
+    if (nameEl) c.name = nameEl.value.trim();
+    if (teacherEl) c.teacher = teacherEl.value.trim();
+    if (roomEl) c.classroom = roomEl.value.trim();
+    if (termEl) c.term = termEl.value.trim();
+  });
+
+  // Reset RC grades so they regenerate with new names/teachers
+  state.rcGrades = {};
+  saveStateToStorage();
+  updateHeaderNames();
+  pendingGrades = null;
+  renderAcademics('details', null);
+
+  const msg = document.getElementById('savedMsg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function teacherToEmail(teacherStr) {
+  if (!teacherStr) return '';
+  // Handle "Last, First" → "first.last@dodea.edu"
+  const primary = teacherStr.split(';')[0].trim();
+  const parts = primary.split(',');
+  if (parts.length < 2) return primary.toLowerCase().replace(/\s+/g,'') + '@dodea.edu';
+  const last = parts[0].trim().toLowerCase().replace(/\s+/g,'').replace(/[^a-z]/g,'');
+  const first = parts[1].trim().toLowerCase().split(' ')[0].replace(/[^a-z]/g,'');
+  return `${first}.${last}@dodea.edu`;
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(d) {
+  return `${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function getFirstName(nameStr) {
+  const parts = nameStr.split(', ');
+  return parts[1] ? parts[1].split(' ')[0] : nameStr;
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD & HASH
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeRC();
+    closeSettings();
+  }
+});
+
+// Close modals on background click
+document.getElementById('rcModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRC();
+});
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+// ═══════════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════════
+init();
+</script>
 </body>
 </html>
